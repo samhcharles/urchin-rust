@@ -1,0 +1,20 @@
+[package]
+name    = "urchin-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "urchin"
+path = "src/main.rs"
+
+[dependencies]
+urchin-core       = { path = "../urchin-core" }
+urchin-intake     = { path = "../urchin-intake" }
+urchin-mcp        = { path = "../urchin-mcp" }
+urchin-collectors = { path = "../urchin-collectors" }
+urchin-vault      = { path = "../urchin-vault" }
+tokio             = { workspace = true }
+clap              = { workspace = true }
+anyhow            = { workspace = true }
+tracing           = { workspace = true }
+tracing-subscriber = { workspace = true }

@@ -1,0 +1,13 @@
+[package]
+name    = "urchin-intake"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+urchin-core  = { path = "../urchin-core" }
+axum         = { workspace = true }
+tokio        = { workspace = true }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
+anyhow       = { workspace = true }
+tracing      = { workspace = true }

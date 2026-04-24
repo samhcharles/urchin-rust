@@ -1,0 +1,14 @@
+[package]
+name    = "urchin-collectors"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+urchin-core = { path = "../urchin-core" }
+tokio       = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+anyhow      = { workspace = true }
+tracing     = { workspace = true }
+notify      = { workspace = true }
+dirs        = { workspace = true }
