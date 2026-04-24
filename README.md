@@ -8,7 +8,7 @@
 
 ## Positioning
 
-Urchin does not own your tools. It connects them. It is additive — nobody loses anything, every tool you already use gets smarter. The substrate earns its place by being genuinely useful, not by creating switching costs.
+Urchin does not own your tools. It connects them. It is additive. Nobody loses anything, every tool you already use gets smarter. The substrate earns its place by being genuinely useful, not by creating switching costs.
 
 ---
 
