@@ -1,4 +1,4 @@
-# Urchin — Rust
+# Urchin Rust
 
 > Local-first memory sync substrate for AI tools. Gives every tool — Claude, Copilot, Gemini, Codex, shell — the same shared memory layer.
 
