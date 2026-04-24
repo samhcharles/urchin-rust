@@ -5,8 +5,8 @@
 **Urchin gives every AI tool the same memory.**
 
 ![Rust](https://img.shields.io/badge/rust-2021-orange?logo=rust&logoColor=white)
-![Last commit](https://img.shields.io/github/last-commit/samhcharles/urchin-rust)
 ![Status](https://img.shields.io/badge/status-phase%203%20live-brightgreen)
+![Local-first](https://img.shields.io/badge/local--first-yes-blue)
 
 </div>
 
@@ -81,8 +81,8 @@ cargo run -p urchin-cli -- doctor
 ```
 ```
 urchin doctor
-  identity:  account=samhc  device=saucemachine
-  journal:   /home/samhc/.local/share/urchin/journal/events.jsonl
+  identity:  account=<you>  device=<host>
+  journal:   ~/.local/share/urchin/journal/events.jsonl
              426 events, 445 KB, last: 2026-04-24T22:27:18Z (test)
 ```
 
@@ -91,8 +91,8 @@ urchin doctor
 ```bash
 cargo run -p urchin-cli -- ingest \
   --content "wired MCP to Claude Code" \
-  --workspace ~/dev/urchin-rust
-# ingested: ce28daad-8a49-4f2e-a846-e2f3e556217a
+  --workspace "$(pwd)"
+# ingested: <uuid>
 ```
 
 **Run the HTTP daemon and hit it:**
@@ -197,10 +197,7 @@ Request body for `/ingest`:
 
 ## Related
 
-- [`AGENTS.md`](./AGENTS.md) — full architecture, phase plan, and rules for agents working in this repo
-- [samhcharles/urchin](https://github.com/samhcharles/urchin) — Node.js reference implementation (417 events proven, behavioral baseline only)
-- **Orinadus** — memory infrastructure org that Urchin ships under
-- **Mad House** — agents and tooling layer that runs on top
+- [`AGENTS.md`](./AGENTS.md) — architecture, phase plan, and rules for contributors
 
 <div align="center">
 <sub>Local-first. Additive. Not a trap.</sub>
