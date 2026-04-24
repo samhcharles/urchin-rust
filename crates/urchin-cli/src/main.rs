@@ -55,8 +55,8 @@ async fn main() -> Result<()> {
 }
 
 async fn serve() -> Result<()> {
-    tracing::info!("urchin serve — not yet implemented");
-    Ok(())
+    let cfg = urchin_core::config::Config::load();
+    urchin_intake::server::serve(&cfg).await
 }
 
 async fn mcp() -> Result<()> {
