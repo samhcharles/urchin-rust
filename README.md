@@ -52,17 +52,28 @@ Solid boxes are live. Dashed boxes are Phase 4 (not built yet).
 
 ---
 
-## Status
+## Roadmap
 
-| Phase | Scope | State |
+| Spike | Status | Description |
 |---|---|---|
-| 1 | `urchin-core` types + `doctor` + `ingest` CLI | **done** |
-| 2 | HTTP intake: `POST /ingest`, `GET /health` | **done** |
-| 3 | MCP server over stdio with 5 tools | **done** |
-| 4 | Collectors: claude, copilot, gemini, shell, git | not started |
-| 5 | Vault projection into `~/brain/_urchin/` marker blocks | not started |
+| Core types + journal | ✅ shipped | `Event`, `Journal`, `Identity`, `Config` — append-only JSONL at `~/.local/share/urchin/journal/events.jsonl` |
+| Identity envelope | ✅ shipped | Account/device resolved from `$USER` and `/etc/hostname`, attached to every event |
+| TOML config + env overrides | ✅ shipped | Defaults → `~/.config/urchin/config.toml` → environment variables |
+| CLI: `doctor` | ✅ shipped | Identity, config source, vault, intake port, journal stats |
+| CLI: `ingest` | ✅ shipped | `--kind`, `--title`, `--tags`, `--workspace`, `--source` |
+| HTTP intake | ✅ shipped | `POST /ingest`, `GET /health`, bound to `127.0.0.1` only |
+| MCP server (stdio) | ✅ shipped | JSON-RPC 2.0 with 5 tools — status, ingest, recent_activity, project_context, search |
+| Shell collector | 🔲 next | Tail `~/.bash_history` and append new entries |
+| Git collector | 🔲 next | Walk known repo roots, ingest commits since last checkpoint |
+| Claude collector | 🔲 planned | Read `~/.claude/history.jsonl` and project transcripts |
+| Copilot collector | 🔲 planned | Read `~/.copilot/session-state/` |
+| Gemini collector | 🔲 planned | Read `~/.gemini/tmp/*/chats/*.json` |
+| Agent bridge | 🔲 planned | Generic JSONL intake queue at `URCHIN_AGENT_EVENTS_PATH` |
+| Daemon mode | 🔲 planned | `urchin serve` runs intake plus a collector tick loop |
+| Vault projection | 🔲 planned | Marker block writes inside `<!-- URCHIN:*:START/END -->`, `_urchin/` namespace only |
+| Remote sync bridge | 🔲 planned | Pull/sync the journal across machines (WSL / VPS) |
 
-19 tests passing across `urchin-core`, `urchin-intake`, and `urchin-mcp`.
+**19 tests passing** across `urchin-core` (7), `urchin-intake` (2), and `urchin-mcp` (10).
 
 ---
 
@@ -180,6 +191,43 @@ Request body for `/ingest`:
   "session":   "optional"
 }
 ```
+
+---
+
+## Commands
+
+| Command | Purpose |
+|---|---|
+| `urchin doctor` | Show identity, config source, paths, journal stats |
+| `urchin ingest` | Write a single event from the command line |
+| `urchin serve` | Start the HTTP intake daemon on `127.0.0.1:<port>` |
+| `urchin mcp` | Run the MCP server over stdio (JSON-RPC 2.0) |
+
+Build once, run from `target/debug/urchin` or via `cargo run -p urchin-cli -- <command>`.
+
+---
+
+## Configuration
+
+Config layers, last wins: defaults → `~/.config/urchin/config.toml` → environment variables.
+
+```toml
+# ~/.config/urchin/config.toml — every key optional
+vault_root   = "/home/you/brain"
+journal_path = "/home/you/.local/share/urchin/journal/events.jsonl"
+cache_path   = "/home/you/.local/share/urchin/event-cache.jsonl"
+intake_port  = 18799
+remote_host  = "vps.example.com"
+```
+
+| Variable | Overrides | Default |
+|---|---|---|
+| `URCHIN_VAULT_ROOT` | `vault_root` | `~/brain` |
+| `URCHIN_JOURNAL_PATH` | `journal_path` | `~/.local/share/urchin/journal/events.jsonl` |
+| `URCHIN_INTAKE_PORT` | `intake_port` | `18799` |
+| `URCHIN_ACCOUNT` | identity `account` | `$USER` |
+| `URCHIN_DEVICE` | identity `device` | hostname |
+| `URCHIN_LOG` | tracing filter | `urchin=info` |
 
 ---
 
