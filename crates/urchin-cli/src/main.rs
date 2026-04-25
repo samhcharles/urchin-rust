@@ -32,6 +32,25 @@ enum Commands {
         #[arg(short, long, default_value = "conversation")]
         kind: String,
     },
+    /// Run a collector once and append new events to the journal
+    Collect {
+        #[command(subcommand)]
+        which: CollectKind,
+    },
+}
+
+#[derive(Subcommand)]
+enum CollectKind {
+    /// Tail ~/.bash_history for new commands
+    Shell,
+    /// Ingest commits from one or more git repos.
+    /// Repos can be passed via --repo (repeatable) or via URCHIN_REPO_ROOTS (colon-separated).
+    Git {
+        #[arg(short, long)]
+        repo: Vec<String>,
+    },
+    /// Run every collector that has a default path (currently: shell, git via URCHIN_REPO_ROOTS)
+    All,
 }
 
 #[tokio::main]
@@ -52,6 +71,7 @@ async fn main() -> Result<()> {
         Commands::Ingest { content, source, workspace, title, tags, kind } => {
             ingest(content, source, workspace, title, tags, kind)
         }
+        Commands::Collect { which } => collect(which),
     }
 }
 
@@ -154,4 +174,67 @@ fn ingest(
     journal.append(&event)?;
     println!("ingested: {}", event.id);
     Ok(())
+}
+
+fn collect(which: CollectKind) -> Result<()> {
+    use urchin_collectors::{git as git_col, shell as shell_col};
+    use urchin_core::{config::Config, identity::Identity, journal::Journal};
+
+    let cfg = Config::load();
+    let identity = Identity::resolve();
+    let journal = Journal::new(cfg.journal_path.clone());
+
+    match which {
+        CollectKind::Shell => {
+            let opts = shell_col::ShellOpts::defaults();
+            let n = shell_col::collect(&journal, &identity, &opts)?;
+            println!("shell: {} new events", n);
+        }
+        CollectKind::Git { repo } => {
+            let repos = resolve_repos(repo);
+            if repos.is_empty() {
+                eprintln!("no repos given. Pass --repo <path> or set URCHIN_REPO_ROOTS.");
+                return Ok(());
+            }
+            let mut total = 0;
+            for r in &repos {
+                let opts = git_col::GitOpts::defaults_for(r.clone());
+                match git_col::collect_repo(&journal, &identity, &opts) {
+                    Ok(n) => {
+                        println!("git {}: {} new commits", r.display(), n);
+                        total += n;
+                    }
+                    Err(e) => eprintln!("git {} skipped: {}", r.display(), e),
+                }
+            }
+            println!("git total: {}", total);
+        }
+        CollectKind::All => {
+            let opts = shell_col::ShellOpts::defaults();
+            match shell_col::collect(&journal, &identity, &opts) {
+                Ok(n)  => println!("shell: {} new events", n),
+                Err(e) => eprintln!("shell skipped: {}", e),
+            }
+            for r in &resolve_repos(vec![]) {
+                let opts = git_col::GitOpts::defaults_for(r.clone());
+                match git_col::collect_repo(&journal, &identity, &opts) {
+                    Ok(n)  => println!("git {}: {} new commits", r.display(), n),
+                    Err(e) => eprintln!("git {} skipped: {}", r.display(), e),
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn resolve_repos(from_args: Vec<String>) -> Vec<std::path::PathBuf> {
+    use std::path::PathBuf;
+    let mut out: Vec<PathBuf> = from_args.into_iter().map(PathBuf::from).collect();
+    if out.is_empty() {
+        if let Ok(env) = std::env::var("URCHIN_REPO_ROOTS") {
+            out.extend(env.split(':').filter(|s| !s.is_empty()).map(PathBuf::from));
+        }
+    }
+    out
 }
