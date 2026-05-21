@@ -150,6 +150,7 @@ fn ingest_locations(
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: None,
+            node_id: Some(identity.node_id.clone()),
         });
         journal.append(&event)?;
         count += 1;
@@ -202,6 +203,7 @@ fn ingest_activity(
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: None,
+            node_id: Some(identity.node_id.clone()),
         });
         journal.append(&event)?;
         seen.insert(key);
@@ -239,10 +241,7 @@ mod tests {
 
     fn setup(tmp: &TempDir) -> (Journal, Identity, GoogleTakeoutOpts) {
         let journal = Journal::new(tmp.path().join("journal.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         let opts = GoogleTakeoutOpts {
             import_dir: tmp.path().join("google-takeout"),
             checkpoint_path: tmp.path().join("ckpt.json"),

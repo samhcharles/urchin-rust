@@ -93,6 +93,9 @@ pub struct Actor {
     pub device: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workspace: Option<String>,
+    /// Hex-encoded Ed25519 public key of the originating node.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
 }
 
 impl Event {

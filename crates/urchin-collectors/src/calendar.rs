@@ -95,6 +95,7 @@ pub fn collect(journal: &Journal, identity: &Identity, opts: &CalendarOpts) -> R
                 account: Some(identity.account.clone()),
                 device: Some(identity.device.clone()),
                 workspace: None,
+                node_id: Some(identity.node_id.clone()),
             });
             journal.append(&event)?;
             seen.insert(uid);
@@ -220,10 +221,7 @@ mod tests {
 
     fn setup(tmp: &TempDir) -> (Journal, Identity, CalendarOpts) {
         let journal = Journal::new(tmp.path().join("journal.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         let opts = CalendarOpts {
             import_dir: tmp.path().join("calendar"),
             checkpoint_path: tmp.path().join("ckpt.json"),

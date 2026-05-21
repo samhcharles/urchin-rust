@@ -184,10 +184,7 @@ mod tests {
         cfg.journal_path = tmp.path().to_path_buf();
         let ctx = ToolContext {
             journal: Arc::new(Journal::new(tmp.path().to_path_buf())),
-            identity: Arc::new(Identity {
-                account: "t".into(),
-                device: "t".into(),
-            }),
+            identity: Arc::new(Identity::for_test("t", "t")),
             config: Arc::new(cfg),
             ephemeral: Arc::new(std::sync::atomic::AtomicBool::new(false)),
             suppressed: Arc::new(std::sync::atomic::AtomicUsize::new(0)),

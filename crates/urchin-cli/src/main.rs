@@ -344,6 +344,7 @@ async fn doctor() -> Result<()> {
     println!("  identity:");
     println!("    account:  {}", identity.account);
     println!("    device:   {}", identity.device);
+    println!("    node_id:  {}", identity.node_id);
     println!();
 
     println!("  config:");
@@ -421,6 +422,7 @@ fn ingest(
         account: Some(identity.account),
         device: Some(identity.device),
         workspace: event.workspace.clone(),
+        node_id: Some(identity.node_id),
     });
 
     journal.append(&event)?;

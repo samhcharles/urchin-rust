@@ -115,6 +115,7 @@ pub fn collect_repo(journal: &Journal, identity: &Identity, opts: &GitOpts) -> R
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: Some(repo.display().to_string()),
+            node_id: Some(identity.node_id.clone()),
         });
 
         journal.append(&event)?;
@@ -204,10 +205,7 @@ mod tests {
         let state = tempfile::tempdir().unwrap();
         let tmp_journal = tempfile::NamedTempFile::new().unwrap();
         let journal = Journal::new(tmp_journal.path().to_path_buf());
-        let identity = Identity {
-            account: "t".into(),
-            device: "t".into(),
-        };
+        let identity = Identity::for_test("t", "t");
         let opts = GitOpts {
             repo: repo.path().to_path_buf(),
             checkpoint_path: state.path().join("git-checkpoint"),
@@ -260,10 +258,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let tmp_journal = tempfile::NamedTempFile::new().unwrap();
         let journal = Journal::new(tmp_journal.path().to_path_buf());
-        let identity = Identity {
-            account: "t".into(),
-            device: "t".into(),
-        };
+        let identity = Identity::for_test("t", "t");
         let opts = GitOpts {
             repo: dir.path().to_path_buf(),
             checkpoint_path: dir.path().join("checkpoint"),

@@ -156,6 +156,7 @@ pub fn collect(journal: &Journal, identity: &Identity, opts: &LocalModelOpts) ->
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: record.workspace,
+            node_id: Some(identity.node_id.clone()),
         });
 
         journal.append(&event)?;
@@ -187,10 +188,7 @@ mod tests {
 
     fn dummy_journal(tmp: &TempDir) -> (Journal, Identity) {
         let j = Journal::new(tmp.path().join("journal.jsonl"));
-        let id = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let id = Identity::for_test("test", "test");
         (j, id)
     }
 

@@ -186,6 +186,7 @@ where
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: None,
+            node_id: Some(identity.node_id.clone()),
         });
 
         journal.append(&event)?;
@@ -233,10 +234,7 @@ mod tests {
             checkpoint_path: dir.path().join("gemini.checkpoint.json"),
         };
         let journal = Journal::new(dir.path().join("events.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         (dir, opts, journal, identity)
     }
 
@@ -263,10 +261,7 @@ mod tests {
             checkpoint_path: dir.path().join("ckpt.json"),
         };
         let journal = Journal::new(dir.path().join("events.jsonl"));
-        let identity = Identity {
-            account: "t".into(),
-            device: "t".into(),
-        };
+        let identity = Identity::for_test("t", "t");
         assert_eq!(collect(&journal, &identity, &opts).unwrap(), 0);
     }
 
