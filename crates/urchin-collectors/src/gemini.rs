@@ -223,6 +223,7 @@ fn save_checkpoint(path: &PathBuf, ckpt: &Checkpoint) -> Result<()> {
 mod tests {
     use super::*;
     use std::io::Write;
+    use std::path::Path;
     use tempfile::TempDir;
 
     fn fixture() -> (TempDir, GeminiOpts, Journal, Identity) {
@@ -238,7 +239,7 @@ mod tests {
         (dir, opts, journal, identity)
     }
 
-    fn write_session(chats_dir: &PathBuf, name: &str, lines: &[&str]) {
+    fn write_session(chats_dir: &Path, name: &str, lines: &[&str]) {
         let path = chats_dir.join(name);
         let mut f = fs::File::create(&path).unwrap();
         for line in lines {
@@ -364,12 +365,11 @@ mod tests {
         );
         collect(&journal, &identity, &opts).unwrap();
         let events = journal.read_all().unwrap();
-        assert_eq!(
+        assert!(
             events[0]
                 .timestamp
                 .to_rfc3339()
-                .starts_with("2026-05-01T15:30:00"),
-            true
+                .starts_with("2026-05-01T15:30:00")
         );
     }
 

@@ -237,7 +237,7 @@ fn save_checkpoint(path: &PathBuf, ckpt: &Checkpoint) -> Result<()> {
 mod tests {
     use super::*;
     use tempfile::TempDir;
-    use urchin_core::{config::Config, journal::Journal};
+    use urchin_core::journal::Journal;
 
     fn setup(tmp: &TempDir) -> (Journal, Identity, GoogleTakeoutOpts) {
         let journal = Journal::new(tmp.path().join("journal.jsonl"));

@@ -336,7 +336,7 @@ mod tests {
             journal_path,
             identity: Arc::new(Identity::for_test("test", "test")),
             token: None,
-            ephemeral: EphemeralMode::new(&ephemeral_dir.path().to_path_buf()),
+            ephemeral: EphemeralMode::new(ephemeral_dir.path()),
         }
     }
 

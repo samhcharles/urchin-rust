@@ -24,5 +24,7 @@ notify      = "6"
 dirs        = "5"
 toml        = "0.8"
 rusqlite      = { version = "0.31", features = ["bundled"] }
-ed25519-dalek = { version = "2", features = ["rand_core"] }
-rand_core     = { version = "0.6", features = ["getrandom"] }
+ed25519-dalek    = { version = "2", features = ["rand_core"] }
+rand_core        = { version = "0.6", features = ["getrandom"] }
+hex              = "0.4"
+percent-encoding = "2"

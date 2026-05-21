@@ -47,7 +47,7 @@ fn load_or_generate_node_id() -> String {
     } else {
         create_and_save_signing_key(&key_path)
     };
-    bytes_to_hex(signing_key.verifying_key().as_bytes())
+    hex::encode(signing_key.verifying_key().as_bytes())
 }
 
 fn node_key_path() -> PathBuf {
@@ -65,6 +65,7 @@ fn load_signing_key(path: &Path) -> anyhow::Result<SigningKey> {
     Ok(SigningKey::from_bytes(&seed))
 }
 
+// Private key retained for future peer authentication handshake (see peers.rs roadmap).
 fn create_and_save_signing_key(path: &Path) -> SigningKey {
     let signing_key = SigningKey::generate(&mut OsRng);
     if let Some(parent) = path.parent() {
@@ -80,10 +81,6 @@ fn create_and_save_signing_key(path: &Path) -> SigningKey {
         }
     }
     signing_key
-}
-
-fn bytes_to_hex(bytes: &[u8]) -> String {
-    bytes.iter().map(|b| format!("{:02x}", b)).collect()
 }
 
 fn whoami_account() -> String {
@@ -117,10 +114,10 @@ mod tests {
         let key_path = tmp.path().join("node.key");
 
         let k1 = create_and_save_signing_key(&key_path);
-        let id1 = bytes_to_hex(k1.verifying_key().as_bytes());
+        let id1 = hex::encode(k1.verifying_key().as_bytes());
 
         let k2 = load_signing_key(&key_path).unwrap();
-        let id2 = bytes_to_hex(k2.verifying_key().as_bytes());
+        let id2 = hex::encode(k2.verifying_key().as_bytes());
 
         assert_eq!(id1, id2);
         assert_eq!(id1.len(), 64);
@@ -139,8 +136,9 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let k1 = create_and_save_signing_key(&tmp.path().join("k1.key"));
         let k2 = create_and_save_signing_key(&tmp.path().join("k2.key"));
-        let id1 = bytes_to_hex(k1.verifying_key().as_bytes());
-        let id2 = bytes_to_hex(k2.verifying_key().as_bytes());
-        assert_ne!(id1, id2);
+        assert_ne!(
+            hex::encode(k1.verifying_key().as_bytes()),
+            hex::encode(k2.verifying_key().as_bytes())
+        );
     }
 }

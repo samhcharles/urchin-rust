@@ -730,10 +730,6 @@ fn config_cmd(action: ConfigAction) -> Result<()> {
             println!("journal_path:  {}", cfg.journal_path.display());
             println!("cache_path:    {}", cfg.cache_path.display());
             println!("intake_port:   {}", cfg.intake_port);
-            println!(
-                "remote_host:   {}",
-                cfg.remote_host.as_deref().unwrap_or("-")
-            );
             println!("cloud_url:     {}", cfg.cloud_url.as_deref().unwrap_or("-"));
             println!(
                 "cloud_token:   {}",

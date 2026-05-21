@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use urchin_core::event::Event;
 
 /// Structured HTTP error returned by the remote end.
@@ -75,8 +76,7 @@ impl UrchinClient {
     pub async fn pull(&self, after_cursor: Option<&str>, limit: usize) -> Result<PullResponse> {
         let mut url = format!("{}/api/urchin-sync/events?limit={}", self.base_url, limit);
         if let Some(cursor) = after_cursor {
-            // ISO 8601 timestamps contain ':' and '+' which need encoding.
-            let encoded = cursor.replace('+', "%2B").replace(':', "%3A");
+            let encoded = utf8_percent_encode(cursor, NON_ALPHANUMERIC);
             url.push_str(&format!("&after={}", encoded));
         }
 
