@@ -216,6 +216,69 @@ impl Index {
             .collect())
     }
 
+    /// Incrementally index any JSONL events not yet in the SQLite index.
+    /// Safe to call concurrently with the writer thread; uses INSERT OR IGNORE.
+    /// Returns the count of newly indexed events.
+    pub fn backfill_from_journal(&self, journal_path: &Path) -> Result<usize> {
+        if !journal_path.exists() {
+            return Ok(0);
+        }
+        let file = std::fs::File::open(journal_path)?;
+        let reader = BufReader::new(file);
+
+        let mut rows: Vec<IndexRow> = Vec::new();
+        let mut byte_offset: u64 = 0;
+
+        for line_result in reader.lines() {
+            let line = line_result?;
+            let line_len = line.len() as u64 + 1;
+            let start = byte_offset;
+            byte_offset += line_len;
+
+            let trimmed = line.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+            if let Some(row) = build_index_row(trimmed, start) {
+                rows.push(row);
+            }
+        }
+
+        if rows.is_empty() {
+            return Ok(0);
+        }
+
+        // Batch in chunks to avoid holding a long write lock.
+        let mut inserted = 0usize;
+        for chunk in rows.chunks(5000) {
+            let mut conn = self.connect()?;
+            let tx = conn.transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
+            {
+                let mut stmt = tx.prepare_cached(
+                    "INSERT OR IGNORE INTO events
+                     (id, timestamp, source, kind, workspace, tags, byte_offset, json, content)
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+                )?;
+                for row in chunk {
+                    let n = stmt.execute(params![
+                        row.id,
+                        row.timestamp_ms,
+                        row.source,
+                        row.kind,
+                        row.workspace,
+                        row.tags,
+                        row.byte_offset as i64,
+                        row.json,
+                        row.content,
+                    ])?;
+                    inserted += n;
+                }
+            }
+            tx.commit()?;
+        }
+        Ok(inserted)
+    }
+
     /// Wipe and rebuild the index from the JSONL journal in one transaction.
     pub fn rebuild_from_journal(&self, journal_path: &Path) -> Result<usize> {
         if !journal_path.exists() {

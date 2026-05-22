@@ -122,6 +122,20 @@ impl Journal {
     pub fn new_with_index(path: PathBuf, index_path: PathBuf) -> Result<Self> {
         let index = Arc::new(Index::open(&index_path)?);
         index.ensure_schema()?;
+
+        // Backfill any events that collectors wrote directly to the JSONL
+        // (bypassing the intake HTTP endpoint and therefore the writer channel).
+        // Runs in a background thread so startup is not blocked.
+        let backfill_index = Arc::clone(&index);
+        let backfill_path = path.clone();
+        std::thread::spawn(move || {
+            match backfill_index.backfill_from_journal(&backfill_path) {
+                Ok(0) => {}
+                Ok(n) => tracing::info!("index backfill: {} events indexed from JSONL", n),
+                Err(e) => tracing::warn!("index backfill failed (JSONL intact): {}", e),
+            }
+        });
+
         let tx = spawn_writer(path.clone(), Some(Arc::clone(&index)));
         Ok(Self {
             path,
