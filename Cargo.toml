@@ -6,6 +6,7 @@ members = [
     "crates/urchin-collectors",
     "crates/urchin-cli",
     "crates/urchin-sdk",
+    "crates/urchin-sleipnir",
 ]
 resolver = "2"
 
