@@ -82,7 +82,7 @@ All fields except the required ones are optional. Optional fields absent from th
 
 ## Responses
 
-### 200 OK — written
+### 200 OK: written
 
 ```json
 {
@@ -93,7 +93,7 @@ All fields except the required ones are optional. Optional fields absent from th
 
 Event was validated and written to the journal.
 
-### 202 Accepted — ephemeral drop
+### 202 Accepted: ephemeral drop
 
 ```json
 {
@@ -105,7 +105,7 @@ Event was validated and written to the journal.
 
 Ephemeral mode is active. The event was accepted but permanently discarded. Nothing written to disk.
 
-### 400 Bad Request — validation failure
+### 400 Bad Request: validation failure
 
 `content` or `source` is present but blank (empty or whitespace-only after trim).
 
@@ -117,7 +117,7 @@ Ephemeral mode is active. The event was accepted but permanently discarded. Noth
 {"error": "source must not be empty"}
 ```
 
-### 401 Unauthorized — auth failure
+### 401 Unauthorized: auth failure
 
 `intake_token` is configured and the `Authorization` header is missing, uses the wrong prefix, or contains the wrong token.
 
@@ -127,11 +127,11 @@ Ephemeral mode is active. The event was accepted but permanently discarded. Noth
 
 Token comparison is string equality. The `Bearer ` prefix (capital B, one space) is required.
 
-### 422 Unprocessable Entity — schema failure
+### 422 Unprocessable Entity: schema failure
 
-Body is not valid JSON, or one of the required fields (`id`, `timestamp`, `source`, `kind`, `content`) is absent from the body. Response body is Axum's default JSON extractor error — not normalised to the error envelope above.
+Body is not valid JSON, or one of the required fields (`id`, `timestamp`, `source`, `kind`, `content`) is absent from the body. Response body is Axum's default JSON extractor error: not normalised to the error envelope above.
 
-### 500 Internal Server Error — write failure
+### 500 Internal Server Error: write failure
 
 `journal.append()` failed (disk full, permission error, mutex poisoned).
 

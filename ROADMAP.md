@@ -8,21 +8,21 @@ Future commits inherit this direction; nothing here is a marketing document.
 
 ---
 
-## Phase 0 — Foundation ✅
+## Phase 0: Foundation ✅
 
 **Status:** done and stable
 
 - Daemon binary (`urchin serve`) with tokio runtime
 - Canonical journal: append-only JSONL, `Event` schema with source / kind / content / timestamp / workspace / session / actor / tags
 - `Identity` envelope: account + device on every event
-- HTTP intake: `POST /ingest`, `GET /health` — 127.0.0.1:18799 only
-- MCP server (stdio, JSON-RPC 2.0): 5 tools — status, ingest, recent_activity, project_context, search
+- HTTP intake: `POST /ingest`, `GET /health`: 127.0.0.1:18799 only
+- MCP server (stdio, JSON-RPC 2.0): 5 tools: status, ingest, recent_activity, project_context, search
 - TOML config + env overrides, XDG-compliant paths
 - Cloud sync: shuttle pattern, `urchin sync` → orinadus.com/api/urchin-sync
 
 ---
 
-## Phase 1 — Collector Network ✅
+## Phase 1: Collector Network ✅
 
 **Status:** done and stable
 
@@ -43,14 +43,14 @@ Human content is never touched.
 
 ---
 
-## Phase 2 — Collector Trait + Agent Skeleton ✅
+## Phase 2: Collector Trait + Agent Skeleton ✅
 
 **Status:** done and stable  
 **Tag:** `v0.3.0`  
 **Commits:** `91716e9` (trait/registry/rusqlite), `50237ec` (codex), `05c9e84` (opencode), `5d48dd8` (local-model), `be2ba80` (MCP hardening + IDE setup docs), `02e5bed` (urchin-agent skeleton + CLI), `f862888` (urchin_agent_reflect MCP tool)
 
 Object-safe `Collector` trait + `CollectorRegistry::with_defaults()`. Any new data source
-becomes one `impl Collector` struct — no changes to daemon or dispatch logic.
+becomes one `impl Collector` struct: no changes to daemon or dispatch logic.
 
 | Collector | Source | Notes |
 |---|---|---|
@@ -67,7 +67,7 @@ becomes one `impl Collector` struct — no changes to daemon or dispatch logic.
 
 ---
 
-## Phase 3 — WebView Collector + Urchin Desktop 🔲
+## Phase 3: WebView Collector + Urchin Desktop 🔲
 
 **Status:** planned  
 **Dependency:** Phase 2 stable (v0.3.0 baseline, 92 tests)
@@ -75,7 +75,7 @@ becomes one `impl Collector` struct — no changes to daemon or dispatch logic.
 ### Architecture
 
 The Urchin Desktop is a **Tauri** application:
-- Rust backend = `urchin-rust` (already built — daemon, MCP, collectors)
+- Rust backend = `urchin-rust` (already built: daemon, MCP, collectors)
 - Next.js frontend = Orinadus dashboard (already built)
 
 No tech-stack pivot. The existing binaries become the Tauri backend.
@@ -88,33 +88,33 @@ those sites. Urchin silently captures raw JSON payloads, normalizes the schema, 
 
 Zero API keys. Zero zip exports. Zero friction. The user logs in normally. Urchin writes.
 
-The WebView intercept is just another `impl Collector` — the trait is already the right interface.
+The WebView intercept is just another `impl Collector`: the trait is already the right interface.
 
 ### Required frontend primitives
 
 These are **architectural mandates**, not optional enhancements. A standard React DOM will choke on
 Urchin's data volumes. These must be in the package.json before the first line of Tauri frontend is written.
 
-#### `react-resizable-panels` — The IDE Layout Engine
+#### `react-resizable-panels`: The IDE Layout Engine
 
 Developer tools require draggable, high-density split panes. Standard CSS grid/flexbox cannot deliver this.
 
 - The exact mathematical resizing primitive used by VS Code and Cursor
 - Shadcn-native: first-class support in the shadcn component ecosystem
 - Required layout: Claude WebView (left) | live terminal intercept stream (right)
-- Enables the user full physical control over their workspace — drag to resize, collapse panes, snap to presets
+- Enables the user full physical control over their workspace: drag to resize, collapse panes, snap to presets
 - Without this, the UI is a website. With this, the UI is an IDE.
 
 ```bash
 npm install react-resizable-panels
 ```
 
-#### `@tanstack/react-virtual` — The DOM Virtualizer
+#### `@tanstack/react-virtual`: The DOM Virtualizer
 
 You cannot render 50,000 intercepted terminal logs or git diffs into a standard browser DOM.
 The Tauri app will freeze and the user will uninstall it.
 
-- Headless utility — renders only the exact pixels currently visible on screen
+- Headless utility: renders only the exact pixels currently visible on screen
 - Keeps live DOM at ~30 items regardless of total dataset size
 - Guarantees 60fps scrolling through months of local SQLite memory history
 - Required for: journal timeline, terminal log stream, git diff viewer, omni-search results
@@ -127,12 +127,12 @@ npm install @tanstack/react-virtual
 ### Sovereignty-first build order
 
 Phase 3 must be built in this exact sequence:
-1. Tauri scaffold — `cargo tauri init`, wire existing `urchin-core` as backend
-2. WebView intercept — `impl Collector` for each AI web UI, network layer interception
+1. Tauri scaffold: `cargo tauri init`, wire existing `urchin-core` as backend
+2. WebView intercept: `impl Collector` for each AI web UI, network layer interception
 3. Sovereignty layer activated (`.urchinignore` runtime, burn button, ephemeral toggle in UI)
-4. Layout shell — react-resizable-panels pane structure
-5. Data views — @tanstack/react-virtual for journal, terminal, git streams
-6. Omni-search command palette (`Ctrl+K`) — queries Phase 4 vector index
+4. Layout shell: react-resizable-panels pane structure
+5. Data views: @tanstack/react-virtual for journal, terminal, git streams
+6. Omni-search command palette (`Ctrl+K`): queries Phase 4 vector index
 
 Sovereignty (step 3) gates the UI (steps 4-6). The data can be collected before the UI is ready;
 the UI must not ship before the sovereignty layer is enforced.
@@ -145,7 +145,7 @@ the data collection is wired here.
 
 ---
 
-## Phase 4 — Omni-Search 🔲
+## Phase 4: Omni-Search 🔲
 
 **Status:** planned  
 **Dependency:** Phase 3
@@ -154,8 +154,8 @@ Vector embeddings over the journal. Each Event is embedded at write time.
 Search returns semantically relevant events, not just keyword matches.
 
 Stack options (local-first priority):
-- `candle` (Hugging Face) — pure Rust, no Python runtime
-- Chroma or Qdrant embedded — vector index co-located with the journal
+- `candle` (Hugging Face): pure Rust, no Python runtime
+- Chroma or Qdrant embedded: vector index co-located with the journal
 - SQLite FTS5 as fallback for machines without GPU
 
 The command palette in Urchin Desktop queries this index.
@@ -163,7 +163,7 @@ MCP tool `urchin_search` upgrades from keyword to semantic.
 
 ---
 
-## Phase 5 — Sovereignty Layer 🔲
+## Phase 5: Sovereignty Layer 🔲
 
 **Status:** planned  
 **Dependency:** Phase 3 (WebView needs governance before shipping)
@@ -175,7 +175,7 @@ These are architectural mandates, not settings menu options.
 
 ### Air-gapped by default
 
-All processing happens locally. The vector index, the journal, the checkpoints — all on bare metal.
+All processing happens locally. The vector index, the journal, the checkpoints: all on bare metal.
 Cloud sync to Orinadus Academia requires explicit user activation. Nothing leaves the machine otherwise.
 
 ### `.urchinignore` protocol
@@ -213,23 +213,23 @@ Users own their substrate. Retention through superior routing, not data lock-in.
 
 ---
 
-## Phase 6 — Multi-Device Sync 🔲
+## Phase 6: Multi-Device Sync 🔲
 
 **Status:** planned  
 **Dependency:** Phase 5 (sovereignty must be solid before multi-device)
 
 The journal is the canonical source of truth. Sync protocol:
-- Deterministic content-addressed chunking — only stream deltas between devices, not full journal push
-- `urchin push` — sends new event chunks to the relay
-- `urchin pull` — fetches chunks from other devices, deduplicates by event ID
+- Deterministic content-addressed chunking: only stream deltas between devices, not full journal push
+- `urchin push`: sends new event chunks to the relay
+- `urchin pull`: fetches chunks from other devices, deduplicates by event ID
 - Relay is end-to-end encrypted; Orinadus sees only ciphertext
 
 ---
 
 ## Non-goals (permanent)
 
-- **No browser extension** — extensions are brittle and require user installation. Urchin wraps the web environment natively via Tauri WebView.
-- **No zip exports as a feature** — if you need to export, that's a failure of the API. The API must be always-on.
-- **No video capture** — Urchin is not Rewind. Screen video is heavy and unreadable by agents. Urchin captures semantic intent only.
-- **No forced cloud** — air-gapped by default is permanent. The cloud is opt-in infrastructure, not the product.
-- **No UI before backend** — every phase starts with the daemon, the collector, or the API surface. The UI follows.
+- **No browser extension**: extensions are brittle and require user installation. Urchin wraps the web environment natively via Tauri WebView.
+- **No zip exports as a feature**: if you need to export, that's a failure of the API. The API must be always-on.
+- **No video capture**: Urchin is not Rewind. Screen video is heavy and unreadable by agents. Urchin captures semantic intent only.
+- **No forced cloud**: air-gapped by default is permanent. The cloud is opt-in infrastructure, not the product.
+- **No UI before backend**: every phase starts with the daemon, the collector, or the API surface. The UI follows.

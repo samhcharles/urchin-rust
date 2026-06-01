@@ -1,0 +1,43 @@
+---
+title: "Google Takeout"
+description: "Ingest location history, search history, and YouTube watch history from a Google Takeout export."
+---
+
+## Command
+
+```bash
+urchin collect google-takeout
+```
+
+## Source path
+
+```
+~/.local/share/urchin/imports/google-takeout/
+```
+
+Place your extracted Google Takeout archive contents in this directory before running the collector.
+
+## What it ingests
+
+| Data type | `kind` | `source` |
+|---|---|---|
+| Location history | `location` | `google-takeout` |
+| Search history | `search_query` | `google-takeout` |
+| YouTube watch history | `watch_history` | `google-takeout` |
+
+## Setup
+
+1. Request a Google Takeout export at [takeout.google.com](https://takeout.google.com). Select **Location History**, **My Activity** (Search), and **YouTube and YouTube Music** (Watch History).
+2. Download and extract the archive.
+3. Copy the relevant subdirectories into `~/.local/share/urchin/imports/google-takeout/`.
+4. Run the collector:
+
+```bash
+urchin collect google-takeout
+```
+
+## Notes
+
+- The collector is idempotent. Re-running after adding new export files only ingests records not previously seen.
+- If the import directory does not exist, the collector exits silently (no error).
+- Google Takeout exports vary in format across export batches. The collector handles both JSON and HTML variants of activity exports.

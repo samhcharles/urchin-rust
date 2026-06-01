@@ -75,6 +75,7 @@ pub fn collect(journal: &Journal, identity: &Identity, opts: &CopilotOpts) -> Re
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: None,
+            node_id: Some(identity.node_id.clone()),
         });
         // No per-entry timestamp in source; use current time.
         event.timestamp = Utc::now();
@@ -139,10 +140,7 @@ mod tests {
             checkpoint_path: dir.path().join("copilot.checkpoint"),
         };
         let journal = Journal::new(dir.path().join("events.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         (dir, opts, journal, identity)
     }
 

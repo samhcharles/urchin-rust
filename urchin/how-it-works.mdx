@@ -14,7 +14,7 @@ The journal is a newline-delimited JSON file at:
 Every event is one line. Lines are appended and never modified. There is no compaction, no deletion, no rewrite. If the file does not exist, the first write creates it (including any intermediate directories).
 
 Each line is the compact JSON serialisation of an `Event` struct with `skip_serializing_if` applied:
-- `None` optional fields are omitted entirely — no `null` keys
+- `None` optional fields are omitted entirely: no `null` keys
 - `tags: []` is omitted
 - All present fields are serialised as-is
 
@@ -27,7 +27,7 @@ Example line:
 
 The `Journal` struct holds a `std::sync::Mutex<()>` write lock. All appends acquire this lock, open the file with `OpenOptions::append`, write the line, and close. This serialises concurrent writes within a single process.
 
-`urchin-mcp` and `urchin-collectors` share the journal file via the filesystem, not via IPC. Multiple processes writing simultaneously will interleave correctly because each write is a single `write(2)` syscall on a line that fits in a typical page — POSIX guarantees atomicity for writes smaller than `PIPE_BUF` on a regular file opened with `O_APPEND`.
+`urchin-mcp` and `urchin-collectors` share the journal file via the filesystem, not via IPC. Multiple processes writing simultaneously will interleave correctly because each write is a single `write(2)` syscall on a line that fits in a typical page: POSIX guarantees atomicity for writes smaller than `PIPE_BUF` on a regular file opened with `O_APPEND`.
 
 ## Process topology
 
@@ -45,10 +45,10 @@ None of the three processes communicate with each other. They all read and write
 
 Every `POST /ingest` passes through four sequential gates:
 
-1. **Auth check** — if `intake_token` is configured, the `Authorization: Bearer <token>` header must match exactly. Returns `401` on mismatch.
-2. **Ephemeral check** — if the ephemeral flag file is present, the event is accepted but permanently discarded. Returns `202`.
-3. **Validation** — `content` and `source` must be non-blank after trim. Returns `400` if either is empty.
-4. **Journal write** — mutex-guarded append. Returns `200 {"id": "...", "status": "ok"}` on success.
+1. **Auth check**: if `intake_token` is configured, the `Authorization: Bearer <token>` header must match exactly. Returns `401` on mismatch.
+2. **Ephemeral check**: if the ephemeral flag file is present, the event is accepted but permanently discarded. Returns `202`.
+3. **Validation**: `content` and `source` must be non-blank after trim. Returns `400` if either is empty.
+4. **Journal write**: mutex-guarded append. Returns `200 {"id": "...", "status": "ok"}` on success.
 
 ## Collectors
 
@@ -83,25 +83,25 @@ Events dropped during ephemeral mode are permanently gone. There is no buffer or
 
 ## MCP server
 
-`urchin mcp` launches a JSON-RPC 2.0 server over stdin/stdout. IDEs and agents connect to it as a subprocess via the MCP protocol. The server exposes 10 tools — see [MCP Overview](/urchin/api/mcp-overview).
+`urchin mcp` launches a JSON-RPC 2.0 server over stdin/stdout. IDEs and agents connect to it as a subprocess via the MCP protocol. The server exposes 10 tools: see [MCP Overview](/urchin/api/mcp-overview).
 
-The MCP server reads the journal by loading all events into memory on each query. There is no SQLite index or daemon required. This keeps the architecture simple at the cost of linear read time — acceptable for typical journal sizes (tens of thousands of events).
+The MCP server reads the journal by loading all events into memory on each query. There is no SQLite index or daemon required. This keeps the architecture simple at the cost of linear read time: acceptable for typical journal sizes (tens of thousands of events).
 
 ## Vault projection
 
 `urchin vault project` writes a summarised block of the day's events into:
 
 ```
-~/brain/daily/YYYY-MM-DD.md
+{vault_root}/daily/YYYY-MM-DD.md
 ```
 
-Writes are scoped to idempotent `<!-- URCHIN:start -->` / `<!-- URCHIN:end -->` marker blocks. Content outside those markers is never touched. Running the projection twice on the same day is safe.
+Writes are scoped to `<!-- URCHIN:START:activity -->` / `<!-- URCHIN:END:activity -->` marker blocks. Content outside those markers is never touched. The write uses a same-directory temp file + `rename(2)` for atomicity. Running the projection twice on the same day is safe.
 
 ## Identity
 
 `Identity::resolve()` produces the `Actor` envelope attached to events created by CLI and MCP tools:
 
-- `account` — `$URCHIN_ACCOUNT` → `$USER` → `"unknown"`
-- `device` — `$URCHIN_DEVICE` → `hostname` → `"unknown"`
+- `account`: `$URCHIN_ACCOUNT` → `$USER` → `"unknown"`
+- `device`: `$URCHIN_DEVICE` → `hostname` → `"unknown"`
 
 Identity is informational only. It is not used for auth.

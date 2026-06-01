@@ -1,0 +1,56 @@
+---
+title: "urchin_remember"
+description: "Write a quick-capture note to the journal without requiring a workspace."
+---
+
+## Description
+
+Writes a `conversation` event to the journal. Unlike `urchin_ingest`, `workspace` is optional — useful for capturing notes, decisions, or observations that are not tied to a specific project path.
+
+## Arguments
+
+| Argument | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `content` | string | Yes | — | The text to record |
+| `tags` | string[] | No | `[]` | Free-form tags |
+| `workspace` | string | No | — | Workspace path (optional context) |
+
+## Returns
+
+On success:
+
+```
+remembered: <uuid>
+```
+
+On failure (`isError: true`):
+
+```
+content must not be empty
+```
+
+## Behaviour during ephemeral mode
+
+When ephemeral mode is active, the call returns a success response with:
+
+```
+(ephemeral mode: event suppressed)
+```
+
+The event is not written to disk. This is not an error.
+
+## Example
+
+```json
+{
+  "name": "urchin_remember",
+  "arguments": {
+    "content": "Decided to use append-only JSONL for the journal — no B-tree overhead, trivial recovery",
+    "tags": ["architecture", "decision"]
+  }
+}
+```
+
+## When to use vs urchin_ingest
+
+Use `urchin_remember` for freeform notes, decisions, and observations where workspace context is irrelevant. Use `urchin_ingest` when you have a specific workspace path and want to attach structured metadata (`kind`, `source`, `session`, `title`).

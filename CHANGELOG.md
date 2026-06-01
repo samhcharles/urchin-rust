@@ -57,8 +57,8 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 **Cross-process ephemeral mode (`urchin-core`)**
 - `EphemeralMode` struct in `crates/urchin-core/src/ephemeral.rs`
 - File-backed flag at `~/.local/share/urchin/ephemeral.lock`
-- `activate()` — writes flag file; `deactivate()` — removes it (idempotent); `is_active()` — `path.exists()`
-- `Default` impl resolves to standard data dir — callers need no config
+- `activate()`: writes flag file; `deactivate()`: removes it (idempotent); `is_active()`: `path.exists()`
+- `Default` impl resolves to standard data dir: callers need no config
 - 3 unit tests: inactive by default, activate/deactivate roundtrip, deactivate idempotent
 
 **Intake auth + ephemeral awareness (`urchin-intake`)**
@@ -81,14 +81,14 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Both the in-process `AtomicBool` (fast gate for MCP tool calls) and the file flag are set/cleared together
 
 **Documentation**
-- `docs/ARCHITECTURE.md` — crate map, process topology, Journal/EphemeralMode/Config internals, desktop integration
-- `docs/API_REFERENCE.md` — `POST /ingest` full schema, all response codes, JSONL format, SDK usage
+- `docs/ARCHITECTURE.md`: crate map, process topology, Journal/EphemeralMode/Config internals, desktop integration
+- `docs/API_REFERENCE.md`: `POST /ingest` full schema, all response codes, JSONL format, SDK usage
 
 ### Changed
 
 **Journal write safety (`urchin-core`)**
 - `Journal` struct gains `write_lock: std::sync::Mutex<()>`
-- `append()` acquires the lock before `OpenOptions::open + writeln!` — prevents intra-process line interleaving
+- `append()` acquires the lock before `OpenOptions::open + writeln!`: prevents intra-process line interleaving
 - `Journal::new()` initialises the lock; external API unchanged
 
 ### Test counts
@@ -105,18 +105,18 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [0.3.1] — 2025-07-05
+## [0.3.1]: 2025-07-05
 
 ### Added
 
 **`Reasoner` trait in `urchin-agent`**
-- `Reasoner: Send + Sync` trait — pluggable LLM backend for the reflection loop
-- `EchoReasoner` — deterministic (no network), used in all tests, default when no endpoint is configured
-- `HttpReasoner` — Ollama-compat `/api/generate` HTTP backend
+- `Reasoner: Send + Sync` trait: pluggable LLM backend for the reflection loop
+- `EchoReasoner`: deterministic (no network), used in all tests, default when no endpoint is configured
+- `HttpReasoner`: Ollama-compat `/api/generate` HTTP backend
   - Reads `URCHIN_REASONER_URL` + `URCHIN_REASONER_MODEL` env vars at construction
   - Builds a structured prompt (goal + context) and returns `response.response`
   - Falls back silently to `EchoReasoner` when URL is not set
-- `reflect::synthesise` now takes `&dyn Reasoner` — deterministic fallback when reasoner errors
+- `reflect::synthesise` now takes `&dyn Reasoner`: deterministic fallback when reasoner errors
 - `Agent::new()` selects backend from env: `HttpReasoner` if URL set, `EchoReasoner` otherwise
 - `ureq = "2"` dep added (sync HTTP, no tokio in agent crate)
 
@@ -134,21 +134,21 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [0.3.0] — 2025-07-05
+## [0.3.0]: 2025-07-05
 
 ### Added
 
 **MCP hardening for daily Cursor/Zed use**
-- Committed `.cursor/mcp.json` — drop this in any repo and Cursor picks up the 9-tool server automatically
+- Committed `.cursor/mcp.json`: drop this in any repo and Cursor picks up the 9-tool server automatically
 - README IDE Setup section: config blocks for Cursor, Zed, VS Code
 - MCP server test renamed to `tools_list_returns_nine_tools` to stay in sync
 
 **`urchin-agent` skeleton crate** (`crates/urchin-agent/`)
 - `Agent` struct + `AgentConfig` builder (`with_hours`, `with_limit`)
-- `context::load()` — time-window + count filter over journal events
-- `context::format_context()` — renders structured context block
-- `reflect::synthesise()` — deterministic text pass (Phase 2 ReAct; Phase 4 slot reserved for LLM backend)
-- `reflect::to_event()` — wraps reflection as `EventKind::Agent` journal event
+- `context::load()`: time-window + count filter over journal events
+- `context::format_context()`: renders structured context block
+- `reflect::synthesise()`: deterministic text pass (Phase 2 ReAct; Phase 4 slot reserved for LLM backend)
+- `reflect::to_event()`: wraps reflection as `EventKind::Agent` journal event
 - `run()` full loop: load → reflect → append back to journal
 - 11 tests
 
@@ -175,13 +175,13 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [0.2.0] — 2026-07-04
+## [0.2.0]: 2026-07-04
 
 ### Added
 
 **Collector trait + registry**
 - Object-safe `Collector` trait: `name()`, `collect()`, `is_available()`
-- `CollectorRegistry::with_defaults(repo_roots)` — wires all 8 collectors, skips unavailable
+- `CollectorRegistry::with_defaults(repo_roots)`: wires all 8 collectors, skips unavailable
 - `run_all()` returns per-collector results with name + count/error
 - Adding a new collector = one `impl Collector` struct; no changes to daemon or dispatch
 
@@ -202,24 +202,24 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Any local inference harness (Ollama, LM Studio, llama.cpp) can append JSONL records
 - Fields: `prompt` (required), `model` (optional tag), `ts` (RFC3339, optional), `workspace` (optional)
 - Checkpoint: byte-offset (same mechanism as shell collector)
-- `is_available()` returns false when drop file is absent — zero noise
+- `is_available()` returns false when drop file is absent: zero noise
 
 **CLI subcommands**
-- `urchin collect codex` — run Codex collector
-- `urchin collect opencode` — run OpenCode collector
-- `urchin collect local-model` — run local model collector
+- `urchin collect codex`: run Codex collector
+- `urchin collect opencode`: run OpenCode collector
+- `urchin collect local-model`: run local model collector
 - All three included in `urchin collect all` via registry
 
 **Documentation**
-- `ROADMAP.md` — architectural contract encoding Context OS phases 0–6
-- `SOVEREIGNTY.md` — four sovereignty mandates as binding spec
-- `.urchinignore.example` — sensible defaults (secrets, .env, gpg, pass)
+- `ROADMAP.md`: architectural contract encoding Context OS phases 0–6
+- `SOVEREIGNTY.md`: four sovereignty mandates as binding spec
+- `.urchinignore.example`: sensible defaults (secrets, .env, gpg, pass)
 - `README.md` updated: 74 tests, 8 collectors, new commands, local model format
 
 ### Changed
 
 - Version bumped `0.1.0` → `0.2.0` across all 7 crates
-- `urchin-collectors/Cargo.toml` gained `rusqlite = { version = "0.31", features = ["bundled"] }` — no system libsqlite3 required
+- `urchin-collectors/Cargo.toml` gained `rusqlite = { version = "0.31", features = ["bundled"] }`: no system libsqlite3 required
 
 ### Test count
 
@@ -234,7 +234,7 @@ Versioning follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [0.1.0-alpha] — 2026-05-03
+## [0.1.0-alpha]: 2026-05-03
 
 ### Added
 

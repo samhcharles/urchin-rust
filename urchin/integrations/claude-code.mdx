@@ -58,7 +58,7 @@ After editing the config, restart Claude Code.
 Run `urchin_status` in a Claude Code session:
 
 ```
-urchin — local memory sync substrate
+urchin: local memory sync substrate
 
 running:  true
 events:   1042
@@ -84,5 +84,5 @@ as you work.
 ## Notes
 
 - `urchin` must be on PATH in the environment that Claude Code runs in. Install with `cargo install --path crates/urchin-cli`.
-- The Urchin MCP server (`urchin mcp`) is a subprocess — Claude Code launches it, not a running daemon. `urchin serve` is not required for MCP.
+- The Urchin MCP server (`urchin mcp`) is a subprocess: Claude Code launches it, not a running daemon. `urchin serve` is not required for MCP.
 - The Claude collector (`urchin collect claude`) reads `~/.claude/projects/` to retroactively capture conversation history. It is a separate, independent mechanism from the MCP integration.

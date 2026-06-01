@@ -81,6 +81,21 @@ enum Commands {
     },
     /// Rebuild the SQLite projection index from the JSONL journal
     RebuildIndex,
+    /// Write a block of recent activity into today's vault daily note
+    Vault {
+        #[command(subcommand)]
+        sub: VaultSubcommand,
+    },
+}
+
+#[derive(Subcommand)]
+enum VaultSubcommand {
+    /// Write today's Urchin activity block into the vault daily note
+    Project {
+        /// Look back this many hours (default: 24)
+        #[arg(long, default_value = "24")]
+        hours: f64,
+    },
 }
 
 #[derive(Subcommand)]
@@ -158,6 +173,9 @@ async fn main() -> Result<()> {
         Commands::Sync => sync().await,
         Commands::Pull { limit } => pull(limit).await,
         Commands::RebuildIndex => rebuild_index(),
+        Commands::Vault { sub } => match sub {
+            VaultSubcommand::Project { hours } => vault_project(hours),
+        },
     }
 }
 
@@ -326,6 +344,7 @@ async fn doctor() -> Result<()> {
     println!("  identity:");
     println!("    account:  {}", identity.account);
     println!("    device:   {}", identity.device);
+    println!("    node_id:  {}", identity.node_id);
     println!();
 
     println!("  config:");
@@ -403,6 +422,7 @@ fn ingest(
         account: Some(identity.account),
         device: Some(identity.device),
         workspace: event.workspace.clone(),
+        node_id: Some(identity.node_id),
     });
 
     journal.append(&event)?;
@@ -710,10 +730,6 @@ fn config_cmd(action: ConfigAction) -> Result<()> {
             println!("journal_path:  {}", cfg.journal_path.display());
             println!("cache_path:    {}", cfg.cache_path.display());
             println!("intake_port:   {}", cfg.intake_port);
-            println!(
-                "remote_host:   {}",
-                cfg.remote_host.as_deref().unwrap_or("-")
-            );
             println!("cloud_url:     {}", cfg.cloud_url.as_deref().unwrap_or("-"));
             println!(
                 "cloud_token:   {}",
@@ -793,6 +809,74 @@ fn truncate_line(s: &str, max: usize) -> String {
     } else {
         first.to_string()
     }
+}
+
+fn vault_project(hours: f64) -> Result<()> {
+    use chrono::Local;
+    use std::io::Write;
+    use urchin_core::config::Config;
+
+    const START: &str = "<!-- URCHIN:START:activity -->";
+    const END: &str = "<!-- URCHIN:END:activity -->";
+
+    let cfg = Config::load();
+    let journal = open_journal(cfg.journal_path.clone());
+    let events = journal.query_recent(hours, None, 500)?;
+
+    let block = if events.is_empty() {
+        "_(no activity in window)_".to_string()
+    } else {
+        events
+            .iter()
+            .map(|e| {
+                let ts = e.timestamp.format("%H:%M");
+                format!("- `{}` **{}** — {}", ts, e.source, truncate_line(&e.content, 120))
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+
+    let today = Local::now().format("%Y-%m-%d").to_string();
+    let daily_path = cfg.vault_root.join("daily").join(format!("{}.md", today));
+    let tmp_path = daily_path.with_extension("md.tmp");
+
+    if !daily_path.exists() {
+        eprintln!("error: daily note not found: {}", daily_path.display());
+        eprintln!("create the file and add {} / {} marker blocks", START, END);
+        std::process::exit(1);
+    }
+
+    let existing = std::fs::read_to_string(&daily_path)?;
+
+    let Some(start_pos) = existing.find(START) else {
+        eprintln!("error: {} not found in {}", START, daily_path.display());
+        std::process::exit(1);
+    };
+    let Some(end_pos) = existing.find(END) else {
+        eprintln!("error: {} not found in {}", END, daily_path.display());
+        std::process::exit(1);
+    };
+    if start_pos >= end_pos {
+        eprintln!("error: activity markers are out of order or malformed");
+        std::process::exit(1);
+    }
+
+    let before = &existing[..start_pos + START.len()];
+    let after = &existing[end_pos..];
+    let new_content = format!("{}\n{}\n{}", before, block, after);
+
+    let mut tmp = std::fs::File::create(&tmp_path)?;
+    tmp.write_all(new_content.as_bytes())?;
+    tmp.sync_all()?;
+    drop(tmp);
+    std::fs::rename(&tmp_path, &daily_path)?;
+
+    println!(
+        "vault project: {} events → {}",
+        events.len(),
+        daily_path.display()
+    );
+    Ok(())
 }
 
 fn resolve_repos(from_args: Vec<String>) -> Vec<std::path::PathBuf> {

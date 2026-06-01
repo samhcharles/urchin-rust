@@ -42,15 +42,15 @@ description: "Case-insensitive substring search over event content within a time
 3. Filters to events where `content` contains `query` (case-insensitive).
 4. Returns the most recent `limit` matching events, newest first.
 
-The search is a simple `str::to_lowercase().contains()` — no tokenisation, no stemming, no relevance ranking. For semantic/conceptual search, use `urchin_semantic_search` instead.
+The search is a simple `str::to_lowercase().contains()`: no tokenisation, no stemming, no relevance ranking. For semantic/conceptual search, use `urchin_semantic_search` instead.
 
 ## Success response
 
 One line per matching event:
 
 ```
-[2026-05-04T20:00:00Z] claude — Use file-backed ephemeral flag for cross-process suppression
-[2026-05-03T14:20:00Z] copilot — ephemeral mode: suppress writes during sensitive session
+[2026-05-04T20:00:00Z] claude: Use file-backed ephemeral flag for cross-process suppression
+[2026-05-03T14:20:00Z] copilot: ephemeral mode: suppress writes during sensitive session
 ```
 
 Returns an empty string if no events match.
@@ -105,6 +105,6 @@ Also returns `isError: true` if the journal cannot be read.
 
 ## Difference from urchin_semantic_search
 
-`urchin_search` is a literal substring match — exact and fast. Use it when you know the specific word or phrase.
+`urchin_search` is a literal substring match: exact and fast. Use it when you know the specific word or phrase.
 
 `urchin_semantic_search` uses token-cosine similarity (or vector embeddings if `URCHIN_EMBEDDER_URL` is set). Use it for conceptual queries like "decisions about authentication" where the exact words may not appear in the content.

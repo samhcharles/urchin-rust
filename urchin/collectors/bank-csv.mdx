@@ -1,0 +1,49 @@
+---
+title: "Bank CSV"
+description: "Ingest purchase transactions from bank-exported CSV files."
+---
+
+## Command
+
+```bash
+urchin collect bank-csv
+```
+
+## Source path
+
+```
+~/.local/share/urchin/imports/bank/
+```
+
+Place one or more CSV files exported from your bank or card provider in this directory.
+
+## What it ingests
+
+| Data type | `kind` | `source` |
+|---|---|---|
+| Transactions | `purchase` | `bank-csv` |
+
+Each row in a CSV file becomes one `purchase` event. The `content` field contains the transaction description and amount.
+
+## Setup
+
+1. Export a transaction CSV from your bank's web portal.
+2. Copy it to the import directory:
+
+```bash
+mkdir -p ~/.local/share/urchin/imports/bank
+cp ~/Downloads/transactions-2026-05.csv ~/.local/share/urchin/imports/bank/
+```
+
+3. Run the collector:
+
+```bash
+urchin collect bank-csv
+```
+
+## Notes
+
+- The collector processes all `.csv` files in the import directory.
+- Idempotent: re-running with the same files ingests no duplicates.
+- If the import directory does not exist or is empty, the collector exits silently (no error).
+- Common bank CSV formats (date, description, amount columns) are supported. Column order is detected automatically.

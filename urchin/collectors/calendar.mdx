@@ -1,0 +1,49 @@
+---
+title: "Calendar"
+description: "Ingest calendar events from .ics files."
+---
+
+## Command
+
+```bash
+urchin collect calendar
+```
+
+## Source path
+
+```
+~/.local/share/urchin/imports/calendar/
+```
+
+Place one or more `.ics` files in this directory. Most calendar applications (Apple Calendar, Google Calendar, Outlook, Thunderbird) can export in iCalendar format.
+
+## What it ingests
+
+| Data type | `kind` | `source` |
+|---|---|---|
+| Calendar events | `calendar_event` | `calendar` |
+
+Each `VEVENT` component becomes one `calendar_event`. The `content` field contains the event summary and time range.
+
+## Setup
+
+1. Export a calendar as `.ics` from your calendar app.
+2. Copy it to the import directory:
+
+```bash
+mkdir -p ~/.local/share/urchin/imports/calendar
+cp ~/Downloads/my-calendar.ics ~/.local/share/urchin/imports/calendar/
+```
+
+3. Run the collector:
+
+```bash
+urchin collect calendar
+```
+
+## Notes
+
+- The collector processes all `.ics` files in the import directory.
+- Idempotent: re-running with the same files ingests no duplicates. Deduplication is based on the iCal `UID` field.
+- If the import directory does not exist or is empty, the collector exits silently (no error).
+- Recurring events are expanded at ingest time; each occurrence becomes a separate journal entry.

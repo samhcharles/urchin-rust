@@ -12,7 +12,7 @@ Host: 127.0.0.1:18799
 
 No authentication required. No request body.
 
-## Response — 200 OK
+## Response: 200 OK
 
 ```json
 {
@@ -23,7 +23,7 @@ No authentication required. No request body.
 ```
 
 <ResponseField name="status" type="string">
-  Always `"ok"` if the server is running and able to respond. There is no `"error"` state — the server either responds or it doesn't.
+  Always `"ok"` if the server is running and able to respond. There is no `"error"` state: the server either responds or it doesn't.
 </ResponseField>
 
 <ResponseField name="events" type="integer">
@@ -54,4 +54,4 @@ curl -s http://127.0.0.1:18799/health
 
 - The journal path is intentionally not included in the response. Use `urchin doctor` or `urchin_status` (MCP) to get it.
 - The `events` count is read from the journal on every request. There is no cached counter.
-- This endpoint does not require `urchin serve` to be running if you're calling it from the same process — but in practice, it is always served by `urchin serve`.
+- This endpoint does not require `urchin serve` to be running if you're calling it from the same process: but in practice, it is always served by `urchin serve`.

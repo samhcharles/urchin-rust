@@ -13,8 +13,8 @@ No flags. Configuration comes from `~/.config/urchin/config.toml` and environmen
 
 ## What it starts
 
-1. **HTTP intake server** — `127.0.0.1:<intake_port>` (default `18799`). Accepts `POST /ingest` and `GET /health`.
-2. **Collector tick loop** — periodically runs all available collectors (shell, git, claude, copilot, gemini, codex, opencode, local-model) and appends new events to the journal.
+1. **HTTP intake server**: `127.0.0.1:<intake_port>` (default `18799`). Accepts `POST /ingest` and `GET /health`.
+2. **Collector tick loop**: periodically runs all available collectors (shell, git, claude, copilot, gemini, codex, opencode, local-model) and appends new events to the journal.
 
 The server runs in the foreground and blocks until killed.
 
@@ -22,7 +22,7 @@ The server runs in the foreground and blocks until killed.
 
 Default: `18799`. Override via `intake_port` in config or `URCHIN_INTAKE_PORT` env var.
 
-The server binds `127.0.0.1` only — never `0.0.0.0`. It is loopback-only by design.
+The server binds `127.0.0.1` only: never `0.0.0.0`. It is loopback-only by design.
 
 ## Running as a background daemon
 

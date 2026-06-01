@@ -2,6 +2,12 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+/// Fixed namespace UUID for UUIDv5 deterministic event IDs.
+pub const URCHIN_EVENT_NS: Uuid = Uuid::from_bytes([
+    0x5a, 0x7b, 0x3c, 0x9d, 0xe1, 0x2f, 0x4b, 0x56,
+    0xb8, 0x12, 0xca, 0xfe, 0xba, 0xbe, 0xde, 0xad,
+]);
+
 /// The canonical unit of memory in Urchin.
 /// Every collector, intake path, and tool produces Events.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,6 +93,9 @@ pub struct Actor {
     pub device: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workspace: Option<String>,
+    /// Hex-encoded Ed25519 public key of the originating node.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub node_id: Option<String>,
 }
 
 impl Event {
@@ -105,6 +114,31 @@ impl Event {
             actor: None,
             meta: None,
         }
+    }
+
+    /// Produce a deterministic UUIDv5 from an event's core fields.
+    ///
+    /// Two events with identical source, kind, content, workspace, and
+    /// minute-granularity timestamp share the same ID, making repeated
+    /// ingestion of the same observation a silent no-op.
+    pub fn deterministic_id(
+        source: &str,
+        kind: &EventKind,
+        content: &str,
+        workspace: Option<&str>,
+        timestamp: &DateTime<Utc>,
+    ) -> Uuid {
+        let minute = timestamp.timestamp() / 60;
+        let kind_str = serde_json::to_string(kind).unwrap_or_default();
+        let key = format!(
+            "{}\0{}\0{}\0{}\0{}",
+            source,
+            kind_str,
+            content,
+            workspace.unwrap_or(""),
+            minute
+        );
+        Uuid::new_v5(&URCHIN_EVENT_NS, key.as_bytes())
     }
 }
 

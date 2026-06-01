@@ -1,0 +1,53 @@
+---
+title: "urchin_workspace_context"
+description: "Return journal events scoped to a specific workspace path."
+---
+
+## Description
+
+Returns events whose `workspace` field starts with the given path prefix. Intended to be called at the start of an IDE session to give the agent context about recent activity in the current project.
+
+## Arguments
+
+| Argument | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `path` | string | Yes | — | Absolute workspace path (prefix-matched) |
+| `hours` | number | No | `168` | Look-back window in hours |
+| `limit` | number | No | `40` | Maximum results to return |
+
+## Returns
+
+One line per matching event:
+
+```
+[2026-05-20T14:32:00Z] claude: Refactored journal write path for WAL mode
+[2026-05-20T14:28:00Z] shell: cargo build --release
+[2026-05-20T13:55:00Z] git: feat: add ephemeral mode cross-process flag
+```
+
+Format: `[timestamp] source: content` (content truncated to ~120 chars).
+
+Returns an empty string if no matching events exist.
+
+## Error conditions
+
+| Error text | Cause |
+|---|---|
+| `"path must not be empty"` | Called with a blank `path` argument |
+
+## Example
+
+```json
+{
+  "name": "urchin_workspace_context",
+  "arguments": {
+    "path": "/home/user/dev/myproject",
+    "hours": 48,
+    "limit": 20
+  }
+}
+```
+
+## Usage pattern
+
+Call this tool at the start of a session to prime the agent with project history before the user's first message. The path prefix match captures activity from all subdirectories within the workspace.

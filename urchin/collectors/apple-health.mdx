@@ -1,0 +1,47 @@
+---
+title: "Apple Health"
+description: "Ingest steps, heart rate, sleep, and workout records from an Apple Health export."
+---
+
+## Command
+
+```bash
+urchin collect apple-health
+```
+
+## Source path
+
+```
+~/.local/share/urchin/imports/apple-health/export.xml
+```
+
+## What it ingests
+
+| Record type | `kind` | `source` |
+|---|---|---|
+| Step count | `health_metric` | `apple-health` |
+| Heart rate | `health_metric` | `apple-health` |
+| Sleep analysis | `health_metric` | `apple-health` |
+| Workouts | `health_metric` | `apple-health` |
+
+## Setup
+
+1. On iPhone: open **Health** → your profile photo → **Export All Health Data**.
+2. Transfer `export.xml` from the resulting zip to:
+
+```bash
+mkdir -p ~/.local/share/urchin/imports/apple-health
+cp /path/to/apple_health_export/export.xml ~/.local/share/urchin/imports/apple-health/
+```
+
+3. Run the collector:
+
+```bash
+urchin collect apple-health
+```
+
+## Notes
+
+- Health exports can be large (hundreds of megabytes for multi-year histories). The collector streams the XML rather than loading it into memory.
+- The collector is idempotent. Re-running with the same export file ingests no duplicates.
+- If the export file does not exist, the collector exits silently (no error).

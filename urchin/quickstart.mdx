@@ -30,7 +30,7 @@ cargo install --path crates/urchin-cli
 urchin doctor
 ```
 
-Output shows identity (account + device), config source, vault path, journal path, intake port, and current journal stats. If the journal does not exist yet, event count will be 0 — that is normal.
+Output shows identity (account + device), config source, vault path, journal path, intake port, and current journal stats. If the journal does not exist yet, event count will be 0: that is normal.
 
 ## 3. Start the daemon
 
@@ -96,7 +96,7 @@ curl -s -X POST http://127.0.0.1:18799/ingest \
     }
     ```
 
-    Restart VS Code. The Copilot Chat agent now has access to all 10 Urchin MCP tools.
+    Restart VS Code. The Copilot Chat agent now has access to all 8 Urchin MCP tools.
   </Tab>
   <Tab title="Cursor">
     The repo ships `.cursor/mcp.json`. Open the repo in Cursor and it picks up automatically.
@@ -147,6 +147,6 @@ urchin collect all
 
 ## Next steps
 
-- [How it works](/urchin/how-it-works) — journal internals, write safety, ephemeral mode
-- [Configuration](/urchin/configuration/config-file) — set vault path, journal path, tokens
-- [CLI reference](/urchin/cli/ingest) — all subcommands and flags
+- [How it works](/urchin/how-it-works): journal internals, write safety, ephemeral mode
+- [Configuration](/urchin/configuration/config-file): set vault path, journal path, tokens
+- [CLI reference](/urchin/cli/ingest): all subcommands and flags

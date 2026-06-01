@@ -1,0 +1,75 @@
+---
+title: "urchin vault"
+description: "Write Urchin data into vault files."
+---
+
+## Synopsis
+
+```bash
+urchin vault project [--hours <N>]
+```
+
+## Subcommands
+
+### project
+
+Writes a block of recent journal activity into today's vault daily note.
+
+```bash
+urchin vault project [--hours <N>]
+```
+
+**Options:**
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `--hours` | float | `24` | Look-back window in hours |
+
+**Behavior:**
+
+1. Resolves today's daily note at `{vault_root}/daily/YYYY-MM-DD.md`
+2. Queries the journal for events in the look-back window (up to 500 events)
+3. Formats events as a markdown bullet list
+4. Atomically replaces the content between `<!-- URCHIN:START:activity -->` and `<!-- URCHIN:END:activity -->` markers
+
+The write uses a same-directory temp file + rename pattern to ensure atomicity. The file is only replaced after `sync_all()` confirms the write to disk.
+
+**Marker blocks:**
+
+The daily note must contain both markers:
+
+```markdown
+<!-- URCHIN:START:activity -->
+<!-- URCHIN:END:activity -->
+```
+
+Content outside these markers is never touched. If either marker is missing or out of order, the command exits non-zero without modifying the file.
+
+**Output format inside the block:**
+
+```markdown
+<!-- URCHIN:START:activity -->
+- `14:32` **claude** — Refactored journal write path for WAL mode
+- `14:28` **shell** — cargo build --release
+- `13:55` **git** — feat: add ephemeral mode cross-process flag
+<!-- URCHIN:END:activity -->
+```
+
+**Exit conditions:**
+
+| Condition | Exit code | Behaviour |
+|---|---|---|
+| Success | `0` | File replaced atomically |
+| Daily note not found | `1` | Error to stderr, file untouched |
+| Marker missing or malformed | `1` | Error to stderr, file untouched |
+| Journal read error | `1` | Error to stderr, file untouched |
+
+## Automation
+
+A systemd user timer runs `urchin vault project` on a schedule. Enable it after installing the binary:
+
+```bash
+systemctl --user enable --now urchin-vault-project.timer
+```
+
+The timer and service files are shipped at `systemd/urchin-vault-project.{service,timer}`. Copy them to `~/.config/systemd/user/` before enabling.

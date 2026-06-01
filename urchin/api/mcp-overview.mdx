@@ -1,6 +1,6 @@
 ---
 title: "MCP Overview"
-description: "All 10 MCP tools exposed by urchin mcp, their schemas, and how errors are returned."
+description: "All 8 MCP tools exposed by urchin mcp, their schemas, and how errors are returned."
 ---
 
 ## Protocol
@@ -11,27 +11,25 @@ description: "All 10 MCP tools exposed by urchin mcp, their schemas, and how err
 
 | Tool | Required args | Optional args | Purpose |
 |---|---|---|---|
-| [`urchin_status`](/urchin/api/mcp-status) | — | — | Journal health, event count, paths, identity |
+| [`urchin_status`](/urchin/api/mcp-status) |: |: | Journal health, event count, paths, identity |
 | [`urchin_ingest`](/urchin/api/mcp-ingest) | `content`, `workspace` | `source`, `kind`, `title`, `tags`, `session` | Write an event to the journal |
-| [`urchin_recent_activity`](/urchin/api/mcp-recent-activity) | — | `hours`, `limit`, `source` | Recent events, newest first |
+| [`urchin_recent_activity`](/urchin/api/mcp-recent-activity) |: | `hours`, `limit`, `source` | Recent events, newest first |
 | [`urchin_search`](/urchin/api/mcp-search) | `query` | `hours`, `limit` | Case-insensitive substring search |
 | [`urchin_project_context`](/urchin/api/mcp-project-context) | `project` | `hours`, `limit` | Events matching a project name or tag |
 | `urchin_workspace_context` | `path` | `hours`, `limit` | Events scoped to a workspace path (prefix-matched) |
 | `urchin_remember` | `content` | `tags`, `workspace` | Quick-capture note without required workspace |
-| `urchin_ephemeral` | `action` | — | Toggle burn mode — suppress all writes |
-| `urchin_agent_reflect` | `goal` | `hours`, `limit` | ReAct reflection: load context, synthesise, write Agent event |
-| `urchin_semantic_search` | `query` | `hours`, `limit` | Token-cosine similarity search (or vector if `URCHIN_EMBEDDER_URL` set) |
+| `urchin_ephemeral` | `action` |: | Toggle burn mode: suppress all writes |
 
 ## Query output format
 
 All query tools (`urchin_recent_activity`, `urchin_search`, `urchin_project_context`, `urchin_workspace_context`) return events as one line per result:
 
 ```
-[2026-05-04T20:00:00Z] claude — Chose file-backed flag for cross-process ephemeral mode
-[2026-05-04T18:30:00Z] shell — cargo build --release
+[2026-05-04T20:00:00Z] claude: Chose file-backed flag for cross-process ephemeral mode
+[2026-05-04T18:30:00Z] shell: cargo build --release
 ```
 
-Format: `[timestamp] source — content (truncated to ~120 chars)`
+Format: `[timestamp] source: content (truncated to ~120 chars)`
 
 ## Error handling
 
@@ -52,7 +50,7 @@ Common errors:
 | `"workspace must not be empty"` | `urchin_ingest` called with blank workspace |
 | `"query must not be empty"` | `urchin_search` called with blank query |
 | `"unknown tool: <name>"` | Tool name not recognised |
-| `"(ephemeral mode: event suppressed)"` | Not an error — ingest/remember called while ephemeral |
+| `"(ephemeral mode: event suppressed)"` | Not an error: ingest/remember called while ephemeral |
 
 <Note>
 When ephemeral mode is active, `urchin_ingest` and `urchin_remember` return a success response (not `isError`) with text `"(ephemeral mode: event suppressed)"`. The call succeeds from the caller's perspective; the event is simply not written.
@@ -70,9 +68,5 @@ When ephemeral mode is active, `urchin_ingest` and `urchin_remember` return a su
 | `limit` | `urchin_project_context` | `30` |
 | `hours` | `urchin_workspace_context` | `168` (1 week) |
 | `limit` | `urchin_workspace_context` | `40` |
-| `hours` | `urchin_agent_reflect` | `24` |
-| `limit` | `urchin_agent_reflect` | `30` |
-| `hours` | `urchin_semantic_search` | `168` (1 week) |
-| `limit` | `urchin_semantic_search` | `10` |
 | `kind` | `urchin_ingest` | `conversation` |
 | `source` | `urchin_ingest` | `mcp` |

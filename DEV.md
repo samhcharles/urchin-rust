@@ -1,13 +1,13 @@
-# Urchin — dev loop
+# Urchin: dev loop
 
 ## Repo layout
 
 ```
 crates/
-  urchin-core/       zero I/O — shared types: Event, Journal, Identity, Config
+  urchin-core/       zero I/O: shared types: Event, Journal, Identity, Config
   urchin-intake/     axum HTTP: POST /ingest, GET /health (port 18799)
   urchin-mcp/        MCP over stdio: 5 tools, JSON-RPC 2.0
-  urchin-collectors/ shell, git, claude, copilot, gemini — all live
+  urchin-collectors/ shell, git, claude, copilot, gemini: all live
   urchin-vault/      vault projection: atomic marker-block writes into ~/brain
   urchin-sdk/        shared types for external integrations
   urchin-cli/        single binary: urchin
@@ -25,13 +25,17 @@ cargo test               # 56 tests
 ## Daemon (systemd user service)
 
 ```bash
+mkdir -p ~/.config/systemd/user
+cp systemd/urchin.service ~/.config/systemd/user/urchin.service
+cp systemd/urchin.env.example ~/.config/urchin/env
+systemctl --user daemon-reload
 systemctl --user start urchin        # start
 systemctl --user stop urchin         # stop
-systemctl --user restart urchin      # restart — picks up new binary automatically
+systemctl --user restart urchin      # restart: picks up new binary automatically
 journalctl --user -u urchin -f       # follow logs
 ```
 
-After `cargo build`, restart the service to pick up the new binary.
+The shipped service expects an installed binary at `~/.local/bin/urchin`. Use `cargo install --path crates/urchin-cli --force` after changes. For true 24/7 user-service behavior across logouts, run `loginctl enable-linger "$USER"` once.
 
 ## MCP
 
@@ -98,7 +102,7 @@ Live endpoint: `https://www.orinadus.com/api/urchin-sync`
 
 ## Configuration
 
-`~/.config/urchin/config.toml` — all fields optional, env vars override.
+`~/.config/urchin/config.toml`: all fields optional, env vars override.
 
 ```toml
 vault_root   = "/home/samhc/brain"
@@ -114,4 +118,4 @@ cloud_token  = "<token>"
 3. Implement `pub fn collect(journal: &Journal, identity: &Identity, opts: &<Name>Opts) -> Result<usize>`
 4. Add one arm to `run_all()` in `lib.rs`
 5. Add variant to `CollectKind` in `crates/urchin-cli/src/main.rs`
-6. Add tests using `tempfile::tempdir()` — never touch the real home dir in tests
+6. Add tests using `tempfile::tempdir()`: never touch the real home dir in tests

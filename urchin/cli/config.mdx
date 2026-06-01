@@ -1,0 +1,67 @@
+---
+title: "urchin config"
+description: "Read and write configuration fields in ~/.config/urchin/config.toml."
+---
+
+## Synopsis
+
+```bash
+urchin config show
+urchin config set <KEY> <VALUE>
+```
+
+## Subcommands
+
+### show
+
+Print the active configuration, including resolved defaults:
+
+```bash
+urchin config show
+```
+
+```
+vault_root:    /home/user/brain
+journal_path:  /home/user/.local/share/urchin/journal/events.jsonl
+cache_path:    /home/user/.local/share/urchin/cache.db
+intake_port:   18799
+remote_host:   -
+cloud_url:     https://www.orinadus.com/api/urchin-sync
+cloud_token:   <set>
+```
+
+### set
+
+Write a key-value pair to `~/.config/urchin/config.toml`:
+
+```bash
+urchin config set <KEY> <VALUE>
+```
+
+| Key | Description |
+|---|---|
+| `vault_root` | Absolute path to your vault directory |
+| `journal_path` | Absolute path to the events JSONL file |
+| `intake_port` | Port for the local HTTP intake server (default: `18799`) |
+| `cloud_url` | URL of the Orinadus cloud sync endpoint |
+| `cloud_token` | Bearer token for cloud sync authentication |
+
+## Examples
+
+```bash
+# Print current config
+urchin config show
+
+# Set vault root
+urchin config set vault_root /home/user/vault
+
+# Configure cloud sync
+urchin config set cloud_url https://www.orinadus.com/api/urchin-sync
+urchin config set cloud_token <your-token>
+```
+
+## Notes
+
+- `urchin config set` writes only the specified field. Unrelated fields in the config file are preserved.
+- Environment variables (e.g. `URCHIN_VAULT_ROOT`) override config file values at runtime. `urchin config show` displays the resolved effective value.
+- See [Config File](/urchin/configuration/config-file) for the full field reference.

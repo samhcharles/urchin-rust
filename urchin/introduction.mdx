@@ -1,17 +1,17 @@
 ---
 title: "Introduction"
-description: "Urchin is a local-first memory substrate that collects signals from every AI tool and exposes them through a unified journal."
+description: "Urchin captures how you work. Shell history, git commits, AI sessions, personal data, all in one local journal. MCP and HTTP expose it to any tool."
 ---
 
-Claude, Copilot, Gemini, Codex, OpenCode, the shell, git — each tool keeps its own history and none of them share it. Urchin runs locally, collects events from every tool into a single append-only journal, and exposes that journal over MCP and HTTP so any agent, IDE, or script can read what every other tool did.
+Claude, Copilot, Gemini, Codex, OpenCode, the shell, git: each tool keeps its own history and none of them share it. Urchin runs locally, collects events from every tool into a single append-only journal, and exposes that journal over MCP and HTTP so any agent, IDE, or script can read what every other tool did.
 
-Urchin does not own your tools. It connects them.
+Urchin does not own your tools. It reads them.
 
 ## What it does
 
-- **Collects** — passive pull collectors for shell history, git commits, Claude, Copilot, Gemini, Codex, OpenCode, and local models. Read-only. No write-back to source tools.
-- **Stores** — events land in an append-only JSONL journal at `~/.local/share/urchin/journal/events.jsonl`. Events are never mutated.
-- **Exposes** — an MCP server (stdio, JSON-RPC 2.0) for IDE integrations, and an HTTP intake server for SDK and script ingestion.
+- **Collects**: passive pull collectors for shell history, git commits, Claude, Copilot, Gemini, Codex, OpenCode, and local models. Read-only. No write-back to source tools.
+- **Stores**: events land in an append-only JSONL journal at `~/.local/share/urchin/journal/events.jsonl`. Events are never mutated.
+- **Exposes**: an MCP server (stdio, JSON-RPC 2.0) with 8 tools for IDE integrations, and an HTTP intake server for SDK and script ingestion.
 
 ## What it does not do
 
@@ -36,11 +36,9 @@ HTTP POST /ingest      →                                     cloud sync
 |---|---|
 | `urchin-core` | Pure types: `Event`, `Journal`, `Config`, `Identity`. Zero I/O except journal reads/writes. |
 | `urchin-intake` | Axum HTTP daemon. `POST /ingest`, `GET /health`. Binds `127.0.0.1:18799`. |
-| `urchin-mcp` | MCP stdio server. 10 tools over JSON-RPC 2.0. |
-| `urchin-collectors` | Shell, git, Claude, Copilot, Gemini, Codex, OpenCode, local-model collectors. |
-| `urchin-vault` | Projects events into `~/brain` daily notes inside marker-guarded blocks. |
-| `urchin-agent` | ReAct reflection loop: load context → synthesise → write Agent event back. |
-| `urchin-sdk` | HTTP client for urchin-intake and Orinadus cloud hub. |
+| `urchin-mcp` | MCP stdio server. 8 tools over JSON-RPC 2.0. |
+| `urchin-collectors` | 14 collectors: shell, git, Claude, Copilot, Gemini, Codex, OpenCode, local model, Google Takeout, Apple Health, bank CSV, calendar, and more. |
+| `urchin-sdk` | HTTP client for urchin-intake and Orinadus cloud sync. |
 | `urchin-cli` | Single binary `urchin`. All subcommands. |
 
 ## Event model
@@ -58,7 +56,7 @@ Every unit of memory is an `Event`:
 | `session` | string | No | Session identifier. |
 | `title` | string | No | Short display title. |
 | `tags` | string[] | No | Free-form tags. Omitted from JSONL when empty. |
-| `actor` | Actor object | No | `{ account, device, workspace }` — all optional. |
+| `actor` | Actor object | No | `{ account, device, workspace }`: all optional. |
 | `brain` | string | No | Vault identifier for multi-brain setups. |
 
 `None`/empty optional fields are omitted from the JSONL output. No null values are written to disk.

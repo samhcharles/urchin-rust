@@ -42,7 +42,7 @@ urchin ingest --content <TEXT> [OPTIONS]
 ## Behaviour
 
 - Reads config from `~/.config/urchin/config.toml` (or env overrides) to locate the journal.
-- Writes directly to the journal file — does **not** go through the HTTP intake server.
+- Writes directly to the journal file: does **not** go through the HTTP intake server.
 - Attaches the local identity (`account`, `device`) as the `actor` field.
 - Exits 0 on success, non-zero on write failure.
 

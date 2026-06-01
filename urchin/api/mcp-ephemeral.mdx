@@ -1,0 +1,77 @@
+---
+title: "urchin_ephemeral"
+description: "Toggle burn mode: suppress all journal writes across MCP and HTTP intake simultaneously."
+---
+
+## Description
+
+Controls ephemeral (burn) mode. When active, all calls to `urchin_ingest` and `urchin_remember` are silently suppressed — no events are written to disk. Because state is managed via a flag file, ephemeral mode is cross-process: activating it from one IDE session suppresses writes from all simultaneously running Urchin processes.
+
+## Arguments
+
+| Argument | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | One of `start`, `end`, or `status` |
+
+## Actions
+
+### start
+
+Activates ephemeral mode by creating `~/.local/share/urchin/ephemeral.lock`.
+
+Returns:
+
+```
+ephemeral mode: active
+```
+
+### end
+
+Deactivates ephemeral mode by removing the lock file.
+
+Returns:
+
+```
+ephemeral mode: inactive
+```
+
+### status
+
+Reports whether ephemeral mode is currently active without changing it.
+
+Returns either:
+
+```
+ephemeral mode: active
+```
+
+or:
+
+```
+ephemeral mode: inactive
+```
+
+## Error conditions
+
+| Error text | Cause |
+|---|---|
+| `"action must be start, end, or status"` | Invalid `action` value |
+
+## Cross-process behaviour
+
+The flag file is checked on every ingest request by both `urchin-mcp` and `urchin-intake`. Activating ephemeral mode from a Claude session immediately suppresses writes from a concurrently running Copilot or HTTP session.
+
+<Warning>
+Events dropped during ephemeral mode are permanently gone. There is no buffer, undo, or recovery path.
+</Warning>
+
+## Example
+
+```json
+{
+  "name": "urchin_ephemeral",
+  "arguments": {
+    "action": "start"
+  }
+}
+```

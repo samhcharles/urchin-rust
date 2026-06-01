@@ -66,6 +66,7 @@ pub fn collect(journal: &Journal, identity: &Identity, opts: &ShellOpts) -> Resu
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: None,
+            node_id: Some(identity.node_id.clone()),
         });
         journal.append(&event)?;
         count += 1;
@@ -118,10 +119,7 @@ mod tests {
             checkpoint_path: dir.path().join("shell.checkpoint"),
         };
         let journal = Journal::new(dir.path().join("events.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         (dir, opts, journal, identity)
     }
 

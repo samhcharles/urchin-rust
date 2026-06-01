@@ -1,0 +1,47 @@
+---
+title: "urchin pull"
+description: "Pull events from the cloud hub into the local journal."
+---
+
+## Synopsis
+
+```bash
+urchin pull [--limit <N>]
+```
+
+## Options
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `-l, --limit` | integer | `100` | Maximum events per page. Maximum accepted value: `500`. |
+
+## Behavior
+
+Fetches events from the configured `cloud_url` that are not already in the local journal, and appends them. The pull is paginated: Urchin iterates through all available pages until the cloud returns no `next_cursor`. The cursor checkpoint is only written after all pages drain successfully.
+
+Duplicate detection is ID-based: events already present in the local journal are skipped silently.
+
+## Prerequisites
+
+`cloud_url` must be configured:
+
+```bash
+urchin config set cloud_url https://www.orinadus.com/api/urchin-sync
+urchin config set cloud_token <your-token>
+```
+
+## Output
+
+```bash
+# Nothing new
+Already up to date.
+
+# New events pulled
+Pulled 23 new events.
+```
+
+## Notes
+
+- The cursor checkpoint is stored at `~/.local/share/urchin/cloud-pull.cursor`.
+- `urchin pull` and `urchin sync` are complementary: `sync` pushes local → cloud, `pull` fetches cloud → local. Together they enable multi-device journal federation without a central coordinator.
+- On multi-device setups, run `urchin pull` after `urchin sync` to merge events from other nodes.

@@ -1,0 +1,70 @@
+---
+title: "Zed"
+description: "Connect Urchin to Zed as a context server over stdio."
+---
+
+## Prerequisites
+
+`urchin` must be on `PATH`. Install via:
+
+```bash
+cargo install --path crates/urchin-cli
+```
+
+Verify:
+
+```bash
+urchin doctor
+```
+
+## Configuration
+
+Add to `~/.config/zed/settings.json`:
+
+```json
+{
+  "context_servers": {
+    "urchin": {
+      "command": {
+        "path": "urchin",
+        "args": ["mcp"]
+      }
+    }
+  }
+}
+```
+
+Restart Zed. The Urchin context server starts automatically when Zed launches.
+
+## Verify the connection
+
+Open the Zed AI panel and run:
+
+```
+urchin_status
+```
+
+Expected response:
+
+```
+events: 4821
+last: 2026-05-20T14:32:00Z (claude)
+journal: /home/user/.local/share/urchin/journal/events.jsonl
+```
+
+## Available tools
+
+All 8 Urchin MCP tools are available in the Zed AI panel:
+
+| Tool | Purpose |
+|---|---|
+| `urchin_status` | Journal health and event count |
+| `urchin_workspace_context` | Prime context for the current project |
+| `urchin_recent_activity` | Recent events across all sources |
+| `urchin_search` | Keyword search |
+| `urchin_project_context` | Events matching a project or tag |
+| `urchin_ingest` | Write a structured event |
+| `urchin_remember` | Quick-capture note |
+| `urchin_ephemeral` | Toggle burn mode |
+
+See [MCP Overview](/urchin/api/mcp-overview) for full argument and return format documentation.

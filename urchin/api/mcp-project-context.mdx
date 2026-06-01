@@ -47,16 +47,16 @@ description: "Return events matching a project name or tag substring within a ti
 3. Filters to events where `project` appears (case-insensitive) in `content`, any `tag`, or `workspace`.
 4. Returns the most recent `limit` matching events, newest first.
 
-This is broader than `urchin_search` — it matches across multiple fields simultaneously, making it suitable for surfacing all activity related to a named project regardless of where the project name appears.
+This is broader than `urchin_search`: it matches across multiple fields simultaneously, making it suitable for surfacing all activity related to a named project regardless of where the project name appears.
 
 ## Success response
 
 One line per matching event:
 
 ```
-[2026-05-04T20:00:00Z] claude — urchin ephemeral mode design: use file-backed flag
-[2026-05-04T18:30:00Z] git — feat: add ephemeral cross-process lock file
-[2026-05-04T17:00:00Z] shell — cargo test -p urchin-intake
+[2026-05-04T20:00:00Z] claude: urchin ephemeral mode design: use file-backed flag
+[2026-05-04T18:30:00Z] git: feat: add ephemeral cross-process lock file
+[2026-05-04T17:00:00Z] shell: cargo test -p urchin-intake
 ```
 
 Returns an empty string if no events match.
@@ -110,4 +110,4 @@ Returns an empty string if no events match.
 
 `urchin_project_context` matches on project **name** (content, tags, or workspace substring). Use it when you know the project name but not the exact workspace path.
 
-`urchin_workspace_context` matches on the **exact workspace path prefix** — use it at the start of a coding session when you know the repo path.
+`urchin_workspace_context` matches on the **exact workspace path prefix**: use it at the start of a coding session when you know the repo path.

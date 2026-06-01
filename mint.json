@@ -54,9 +54,16 @@
           "group": "CLI",
           "pages": [
             "urchin/cli/ingest",
+            "urchin/cli/recent",
+            "urchin/cli/query",
             "urchin/cli/mcp",
             "urchin/cli/serve",
             "urchin/cli/collect",
+            "urchin/cli/sync",
+            "urchin/cli/pull",
+            "urchin/cli/vault",
+            "urchin/cli/config",
+            "urchin/cli/rebuild-index",
             "urchin/cli/doctor"
           ]
         },
@@ -72,7 +79,11 @@
           "pages": [
             "urchin/collectors/overview",
             "urchin/collectors/shell",
-            "urchin/collectors/git"
+            "urchin/collectors/git",
+            "urchin/collectors/google-takeout",
+            "urchin/collectors/apple-health",
+            "urchin/collectors/bank-csv",
+            "urchin/collectors/calendar"
           ]
         },
         {
@@ -80,6 +91,7 @@
           "pages": [
             "urchin/integrations/claude-code",
             "urchin/integrations/vscode",
+            "urchin/integrations/zed",
             "urchin/integrations/http"
           ]
         },
@@ -93,7 +105,10 @@
             "urchin/api/mcp-status",
             "urchin/api/mcp-recent-activity",
             "urchin/api/mcp-search",
-            "urchin/api/mcp-project-context"
+            "urchin/api/mcp-project-context",
+            "urchin/api/mcp-workspace-context",
+            "urchin/api/mcp-remember",
+            "urchin/api/mcp-ephemeral"
           ]
         }
       ]

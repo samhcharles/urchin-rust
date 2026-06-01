@@ -1,0 +1,52 @@
+---
+title: "urchin query"
+description: "Search journal events by keyword substring."
+---
+
+## Synopsis
+
+```bash
+urchin query <TEXT> [OPTIONS]
+```
+
+## Arguments
+
+| Argument | Required | Description |
+|---|---|---|
+| `TEXT` | Yes | Case-insensitive substring to match against event content |
+
+## Options
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `-s, --source` | string | — | Filter results to a specific source |
+| `-l, --limit` | integer | `20` | Maximum number of results to return |
+| `--hours` | float | `168` | Look-back window in hours (default: 1 week) |
+
+## Output format
+
+```
+3 match(es) for "WAL":
+2026-05-20T14:32:00Z  claude  Refactored journal write path for WAL mode
+2026-05-18T09:10:00Z  claude  Configured SQLite WAL mode with busy_timeout=5000
+2026-05-17T16:44:00Z  shell   sqlite3 journal.db 'PRAGMA journal_mode=WAL'
+```
+
+## Examples
+
+```bash
+# Search for all events mentioning "cargo build"
+urchin query "cargo build"
+
+# Search only within git commits
+urchin query "refactor" --source git
+
+# Limit to 5 results from the past 24 hours
+urchin query "ephemeral" --limit 5 --hours 24
+```
+
+## Notes
+
+- The search is a case-insensitive substring match against the `content` field.
+- Uses the SQLite index when available. Falls back to a full JSONL scan if the index is absent.
+- Source filter is applied after the content search.

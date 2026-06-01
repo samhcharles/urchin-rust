@@ -204,6 +204,7 @@ fn ingest(args: &Value, ctx: &ToolContext) -> Result<String> {
         account: Some(ctx.identity.account.clone()),
         device: Some(ctx.identity.device.clone()),
         workspace: Some(workspace),
+        node_id: Some(ctx.identity.node_id.clone()),
     });
 
     ctx.journal.append(&event)?;
@@ -277,6 +278,7 @@ fn remember(args: &Value, ctx: &ToolContext) -> Result<String> {
         account: Some(ctx.identity.account.clone()),
         device: Some(ctx.identity.device.clone()),
         workspace,
+        node_id: Some(ctx.identity.node_id.clone()),
     });
 
     ctx.journal.append(&event)?;
@@ -398,15 +400,13 @@ mod tests {
 
     fn ctx_with_tmp_journal() -> (ToolContext, NamedTempFile) {
         let tmp = NamedTempFile::new().unwrap();
-        let mut cfg = Config::default();
-        cfg.journal_path = tmp.path().to_path_buf();
         let ctx = ToolContext {
             journal: Arc::new(Journal::new(tmp.path().to_path_buf())),
-            identity: Arc::new(Identity {
-                account: "test".into(),
-                device: "test".into(),
+            identity: Arc::new(Identity::for_test("test", "test")),
+            config: Arc::new(Config {
+                journal_path: tmp.path().to_path_buf(),
+                ..Config::default()
             }),
-            config: Arc::new(cfg),
             ephemeral: Arc::new(std::sync::atomic::AtomicBool::new(false)),
             suppressed: Arc::new(std::sync::atomic::AtomicUsize::new(0)),
         };

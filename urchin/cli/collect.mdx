@@ -35,7 +35,7 @@ urchin collect git --repo <PATH> [--repo <PATH> ...]
 
 Reads new commits since the last recorded SHA for each repo. Ingests each commit as a `commit` event with the commit message as `content`, commit SHA in `title`, and `source: "git"`. Per-repo checkpoints are stored in `~/.local/share/urchin/git-<hash>.checkpoint`.
 
-First run per repo is silent — it records the current HEAD but does not ingest historical commits.
+First run per repo is silent: it records the current HEAD but does not ingest historical commits.
 
 ```bash
 urchin collect git --repo /home/user/dev/myproject
@@ -63,7 +63,7 @@ Reads `~/.claude/projects/` JSONL transcript files. Ingests new conversation tur
 urchin collect copilot
 ```
 
-Reads `~/.copilot/command-history-state.json`. Uses a content-addressed hash checkpoint — reruns only ingest entries that weren't present in the previous run.
+Reads `~/.copilot/command-history-state.json`. Uses a content-addressed hash checkpoint: reruns only ingest entries that weren't present in the previous run.
 
 ---
 
@@ -126,5 +126,5 @@ Collectors whose source path does not exist are silently skipped.
 ## Notes
 
 - All collectors are read-only. They never write back to source tools.
-- Each collector is idempotent — running it twice produces no duplicate events.
+- Each collector is idempotent: running it twice produces no duplicate events.
 - Collector errors are printed to stderr but do not affect other collectors when running `all`.

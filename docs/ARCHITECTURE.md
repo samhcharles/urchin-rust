@@ -1,4 +1,4 @@
-# Urchin Substrate — Architecture
+# Urchin Substrate: Architecture
 
 > This document describes the production state of the urchin-rust workspace as of v0.3.4.
 > It covers crate responsibilities, inter-process data flows, write-safety invariants,
@@ -20,7 +20,7 @@ crates/
 │
 ├── urchin-mcp          Binary. MCP server over stdio (JSON-RPC 2.0).
 │                       10 tools exposed to IDE integrations (Cursor, Zed, VS Code).
-│                       Shares journal with intake via filesystem — NOT via IPC.
+│                       Shares journal with intake via filesystem: NOT via IPC.
 │
 ├── urchin-collectors   Library + sub-binaries. Pull collectors for shell, git,
 │                       claude, copilot, gemini, codex, opencode, local-model.
@@ -103,7 +103,7 @@ pub struct Journal {
 **Thread safety:** `write_lock` is a std (not tokio) Mutex held only for the duration of
 `OpenOptions::append + writeln!`. Two concurrent calls to `append()` within the same process will
 block rather than interleave partial JSON. The lock is NOT held across `.await` points because
-`append()` is synchronous — there is no `Send` issue with `Arc<Journal>` in async contexts.
+`append()` is synchronous: there is no `Send` issue with `Arc<Journal>` in async contexts.
 
 **Cross-process:** Multiple OS processes (intake + mcp + collectors) each open the file via
 `O_APPEND`. Linux guarantees atomicity for small writes (≤ PIPE_BUF ≈ 4KB) to O_APPEND files on
@@ -171,13 +171,13 @@ Load order (later layers win):
 |------------------|--------------------------|--------------------------------------------------|
 | `vault_root`     | `URCHIN_VAULT_ROOT`      | `~/brain`                                        |
 | `journal_path`   | `URCHIN_JOURNAL_PATH`    | `~/.local/share/urchin/journal/events.jsonl`     |
-| `cache_path`     | —                        | `~/.local/share/urchin/event-cache.jsonl`        |
+| `cache_path`     |:                        | `~/.local/share/urchin/event-cache.jsonl`        |
 | `intake_port`    | `URCHIN_INTAKE_PORT`     | `18799`                                          |
 | `cloud_url`      | `URCHIN_CLOUD_URL`       | `None`                                           |
 | `cloud_token`    | `URCHIN_CLOUD_TOKEN`     | `None`                                           |
 | `intake_token`   | `URCHIN_INTAKE_TOKEN`    | `None` (auth disabled)                           |
 
-When `intake_token` is `None`, the intake server accepts all requests — safe because it binds
+When `intake_token` is `None`, the intake server accepts all requests: safe because it binds
 loopback only. Set the token for any multi-user or networked environment.
 
 ### Event
@@ -198,11 +198,11 @@ Axum 0.8 HTTP server. Binds `127.0.0.1:<cfg.intake_port>` (default `18799`). Two
 ### `POST /ingest`
 
 Handler execution order (strict):
-1. **Axum JSON extractor** — if body is not valid JSON mapping to `Event`, returns `422 Unprocessable Entity` before handler runs.
-2. **Bearer auth** — if `state.token` is `Some(t)`, requires `Authorization: Bearer <t>`. Wrong or absent → `401 Unauthorized`.
-3. **Ephemeral check** — if `EphemeralMode::is_active()`, returns `202 Accepted` with `{"status": "dropped"}`. Event is permanently discarded.
-4. **Payload validation** — `content.trim().is_empty()` → `400`. `source.trim().is_empty()` → `400`.
-5. **Journal write** — `journal.append(&event)` (mutex-guarded). Returns `200 {"id": ..., "status": "ok"}` or `500` on write error.
+1. **Axum JSON extractor**: if body is not valid JSON mapping to `Event`, returns `422 Unprocessable Entity` before handler runs.
+2. **Bearer auth**: if `state.token` is `Some(t)`, requires `Authorization: Bearer <t>`. Wrong or absent → `401 Unauthorized`.
+3. **Ephemeral check**: if `EphemeralMode::is_active()`, returns `202 Accepted` with `{"status": "dropped"}`. Event is permanently discarded.
+4. **Payload validation**: `content.trim().is_empty()` → `400`. `source.trim().is_empty()` → `400`.
+5. **Journal write**: `journal.append(&event)` (mutex-guarded). Returns `200 {"id": ..., "status": "ok"}` or `500` on write error.
 
 ### `GET /health`
 
@@ -220,7 +220,7 @@ pub struct AppState {
 }
 ```
 
-`AppState` is `Clone` via `Arc<Journal>` + `Arc<Identity>` — Axum clones it per request.
+`AppState` is `Clone` via `Arc<Journal>` + `Arc<Identity>`: Axum clones it per request.
 `EphemeralMode::clone()` clones the `PathBuf`; every clone checks the same file.
 
 ---
@@ -234,8 +234,8 @@ pub struct AppState {
 | Tool                       | Side effects                                              |
 |----------------------------|-----------------------------------------------------------|
 | `urchin_status`            | Read-only journal stats                                   |
-| `urchin_ingest`            | `journal.append()` — suppressed during ephemeral mode     |
-| `urchin_remember`          | `journal.append()` — suppressed during ephemeral mode     |
+| `urchin_ingest`            | `journal.append()`: suppressed during ephemeral mode     |
+| `urchin_remember`          | `journal.append()`: suppressed during ephemeral mode     |
 | `urchin_recent_activity`   | `journal.read_tail()`                                     |
 | `urchin_search`            | Full scan with substring match                            |
 | `urchin_semantic_search`   | Token cosine or vector (if `URCHIN_EMBEDDER_URL` set)     |
@@ -269,8 +269,7 @@ fire events into `urchin-intake` via HTTP:
   → events.jsonl
 ```
 
-The desktop app runs as a separate OS process. It does not link against urchin-core directly —
-all writes go through HTTP so intake auth and ephemeral mode apply uniformly.
+The desktop app runs as a separate OS process. It does not link against urchin-core directly. All writes go through HTTP so intake auth and ephemeral mode apply uniformly.
 
 ---
 

@@ -5,7 +5,7 @@ description: "How Urchin's passive pull collectors work, what sources are suppor
 
 ## Principle
 
-Collectors are read-only. They pull data from existing tool state files — history files, SQLite databases, JSONL logs — and translate new entries into Urchin events. They never write back to source tools, never install hooks, and never modify your shell config.
+Collectors are read-only. They pull data from existing tool state files: history files, SQLite databases, JSONL logs: and translate new entries into Urchin events. They never write back to source tools, never install hooks, and never modify your shell config.
 
 Every collector is idempotent. Running the same collector twice produces no duplicate events because each collector maintains a checkpoint.
 
@@ -13,7 +13,7 @@ Every collector is idempotent. Running the same collector twice produces no dupl
 
 Each collector stores a checkpoint file in `~/.local/share/urchin/`. On each run:
 
-1. Read the checkpoint (byte offset, SHA, row ID, or content hash — depending on collector).
+1. Read the checkpoint (byte offset, SHA, row ID, or content hash: depending on collector).
 2. Read only the entries **after** the checkpoint position.
 3. Write new entries to the journal.
 4. Update the checkpoint to the new position.
@@ -21,6 +21,8 @@ Each collector stores a checkpoint file in `~/.local/share/urchin/`. On each run
 If the source file does not exist, the collector exits silently (no error, no output).
 
 ## Available collectors
+
+### AI and dev tools
 
 | Collector | Command | Source |
 |---|---|---|
@@ -32,6 +34,17 @@ If the source file does not exist, the collector exits silently (no error, no ou
 | Codex | `urchin collect codex` | `~/.codex/state_5.sqlite` |
 | OpenCode | `urchin collect opencode` | `~/.local/share/opencode/opencode.db` |
 | Local model | `urchin collect local-model` | `~/.local/share/urchin/local-model.jsonl` |
+
+### Personal data (import-based)
+
+These collectors read from files you place in `~/.local/share/urchin/imports/`. They never connect to external services.
+
+| Collector | Command | Source |
+|---|---|---|
+| Google Takeout | `urchin collect google-takeout` | `imports/google-takeout/` |
+| Apple Health | `urchin collect apple-health` | `imports/apple-health/export.xml` |
+| Bank CSV | `urchin collect bank-csv` | `imports/bank/*.csv` |
+| Calendar | `urchin collect calendar` | `imports/calendar/*.ics` |
 
 Run all at once:
 
@@ -53,6 +66,10 @@ urchin collect all
 | Codex | `conversation` | `codex` |
 | OpenCode | `conversation` | `opencode` |
 | Local model | `conversation` | `local-model` |
+| Google Takeout | `location` / `search_query` / `watch_history` | `google-takeout` |
+| Apple Health | `health_metric` | `apple-health` |
+| Bank CSV | `purchase` | `bank-csv` |
+| Calendar | `calendar_event` | `calendar` |
 
 ## Availability detection
 

@@ -1,0 +1,46 @@
+---
+title: "urchin sync"
+description: "Push unsynced local journal events to the configured cloud hub."
+---
+
+## Synopsis
+
+```bash
+urchin sync
+```
+
+## Behavior
+
+Reads all events from the local journal that have not yet been pushed (tracked via a byte-offset checkpoint), and POSTs them to the configured `cloud_url` in sequence.
+
+The checkpoint is only advanced when the entire batch succeeds. On partial failure, the command exits non-zero and the same batch will be retried on the next run.
+
+## Prerequisites
+
+`cloud_url` must be configured:
+
+```bash
+urchin config set cloud_url https://www.orinadus.com/api/urchin-sync
+urchin config set cloud_token <your-token>  # if the endpoint requires auth
+```
+
+## Output
+
+```bash
+# Nothing new to push
+Already up to date. No events to sync.
+
+# Successful push
+Synced 47 events.
+
+# Partial failure
+Partial: 12/47 events pushed. Checkpoint not advanced — will retry on next sync.
+```
+
+`urchin sync` exits non-zero on partial failure.
+
+## Notes
+
+- `urchin serve` runs `sync` automatically on each daemon tick (every 60 seconds). Use `urchin sync` directly for one-shot manual pushes or scripts.
+- The offset checkpoint is stored at `~/.local/share/urchin/cloud-sync.offset`.
+- See [urchin pull](/urchin/cli/pull) to pull events from the cloud back into the local journal.

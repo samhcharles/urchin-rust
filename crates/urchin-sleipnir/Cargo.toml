@@ -1,0 +1,25 @@
+[package]
+name    = "urchin-sleipnir"
+version = "0.1.0"
+edition = "2021"
+description = "Local distillation daemon — reads the Urchin JSONL journal, filters noise, and clusters activity."
+
+[[bin]]
+name = "sleipnir"
+path = "src/main.rs"
+
+[dependencies]
+urchin-core = { path = "../urchin-core" }
+tokio       = { workspace = true }
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+chrono      = { workspace = true }
+anyhow      = { workspace = true }
+tracing     = { workspace = true }
+tracing-subscriber = { workspace = true }
+dirs        = { workspace = true }
+rusqlite    = { workspace = true }
+uuid        = { workspace = true }
+
+[dev-dependencies]
+tempfile = "3"

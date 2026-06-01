@@ -1,0 +1,49 @@
+---
+title: "urchin recent"
+description: "Print recent journal events to stdout."
+---
+
+## Synopsis
+
+```bash
+urchin recent [OPTIONS]
+```
+
+## Options
+
+| Flag | Type | Default | Description |
+|---|---|---|---|
+| `-n, --n` | integer | `20` | Number of events to show (newest first) |
+| `-s, --source` | string | — | Filter by source (e.g. `claude`, `shell`, `git`) |
+| `--hours` | float | `168` | Look-back window in hours (default: 1 week) |
+
+## Output format
+
+One event per line:
+
+```
+2026-05-20T14:32:00Z  claude  Refactored journal write path for WAL mode
+2026-05-20T14:28:00Z  shell   cargo build --release
+2026-05-20T13:55:00Z  git     feat: add ephemeral mode cross-process flag
+```
+
+Columns: `timestamp`, `source`, `content` (truncated to ~100 chars, first line only).
+
+## Examples
+
+```bash
+# Last 20 events (default)
+urchin recent
+
+# Last 50 events from the past 48 hours
+urchin recent --n 50 --hours 48
+
+# Only Claude sessions from the past week
+urchin recent --source claude
+```
+
+## Notes
+
+- Uses the SQLite index when available (`index.db` in the same directory as the journal). Falls back to a full JSONL scan if the index is absent.
+- Events are returned newest-first.
+- Content is truncated at 100 characters, first line only. Use `urchin query` for full-content search.

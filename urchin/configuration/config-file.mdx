@@ -9,7 +9,7 @@ description: "All configuration keys for ~/.config/urchin/config.toml."
 ~/.config/urchin/config.toml
 ```
 
-The file is optional. All keys have defaults. A missing file is not an error. An incomplete file is fine — only the keys that are present override the defaults.
+The file is optional. All keys have defaults. A missing file is not an error. An incomplete file is fine: only the keys that are present override the defaults.
 
 ## Keys
 
@@ -78,9 +78,9 @@ cloud_token  = "your-cloud-token"
 
 Configuration is layered. Later layers win:
 
-1. **Compiled defaults** — applied unconditionally
-2. **Config file** — keys present in `config.toml` override defaults
-3. **Environment variables** — override both file and defaults. See [Environment Variables](/urchin/configuration/environment-variables).
+1. **Compiled defaults**: applied unconditionally
+2. **Config file**: keys present in `config.toml` override defaults
+3. **Environment variables**: override both file and defaults. See [Environment Variables](/urchin/configuration/environment-variables).
 
 ## Editing via CLI
 
@@ -97,6 +97,6 @@ urchin config show
 
 ## Notes
 
-- Sensitive values (`cloud_token`, `intake_token`) are shown as `[set]` in `urchin doctor` output — the actual values are never printed.
+- Sensitive values (`cloud_token`, `intake_token`) are shown as `[set]` in `urchin doctor` output: the actual values are never printed.
 - The file is parsed with TOML. Strings must be quoted. Integers must not be quoted.
 - Unknown keys in the file are silently ignored.

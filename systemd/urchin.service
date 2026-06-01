@@ -1,0 +1,15 @@
+[Unit]
+Description=Urchin daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/sh -lc 'exec "${URCHIN_BIN:-$HOME/.local/bin/urchin}" serve'
+Restart=always
+RestartSec=10
+Environment=URCHIN_LOG=urchin=info
+EnvironmentFile=-%h/.config/urchin/env
+
+[Install]
+WantedBy=default.target

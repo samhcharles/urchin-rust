@@ -49,6 +49,6 @@ No-op if the file does not exist.
 
 - Only `~/.bash_history` is read. `zsh_history` and fish history are not currently supported.
 - The timestamp on each event is the time the collector ran, not the time the command was executed. Bash history does not include timestamps by default.
-- If `HISTTIMEFORMAT` is set in your shell, bash writes timestamps inline in history — the collector does not currently parse these; it ingests the raw line including the timestamp prefix.
+- If `HISTTIMEFORMAT` is set in your shell, bash writes timestamps inline in history: the collector does not currently parse these; it ingests the raw line including the timestamp prefix.
 - Commands containing newlines (e.g. here-docs) may appear as multiple events.
-- The collector is safe to run concurrently with normal shell use — it only reads, never writes.
+- The collector is safe to run concurrently with normal shell use: it only reads, never writes.

@@ -130,6 +130,22 @@ cargo build                        # → target/debug/urchin
 ./target/debug/urchin doctor       # verify identity + journal state
 ```
 
+## Persistent daemon
+
+For a durable user-level service, install the CLI binary and the shipped user unit:
+
+```bash
+cargo install --path crates/urchin-cli --force
+mkdir -p ~/.config/systemd/user
+cp systemd/urchin.service ~/.config/systemd/user/urchin.service
+cp systemd/urchin.env.example ~/.config/urchin/env
+systemctl --user daemon-reload
+systemctl --user enable --now urchin
+loginctl enable-linger "$USER"
+```
+
+`~/.config/urchin/config.toml` stays the primary config file. `~/.config/urchin/env` is optional and only for `URCHIN_*` environment overrides such as `URCHIN_REPO_ROOTS` or `URCHIN_LOG`.
+
 ---
 
 ## Commands

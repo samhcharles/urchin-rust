@@ -334,12 +334,9 @@ mod tests {
         AppState {
             journal: Arc::new(Journal::new(journal_path.clone())),
             journal_path,
-            identity: Arc::new(Identity {
-                account: "test".into(),
-                device: "test".into(),
-            }),
+            identity: Arc::new(Identity::for_test("test", "test")),
             token: None,
-            ephemeral: EphemeralMode::new(&ephemeral_dir.path().to_path_buf()),
+            ephemeral: EphemeralMode::new(ephemeral_dir.path()),
         }
     }
 

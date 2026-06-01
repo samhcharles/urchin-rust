@@ -166,6 +166,7 @@ fn ingest_file(
             account: Some(identity.account.clone()),
             device: Some(identity.device.clone()),
             workspace: None,
+            node_id: Some(identity.node_id.clone()),
         });
         journal.append(&event)?;
         count += 1;
@@ -241,10 +242,7 @@ mod tests {
 
     fn setup(tmp: &TempDir) -> (Journal, Identity, BankCsvOpts) {
         let journal = Journal::new(tmp.path().join("journal.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         let opts = BankCsvOpts {
             import_dir: tmp.path().join("bank"),
             checkpoint_path: tmp.path().join("ckpt.json"),

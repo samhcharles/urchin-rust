@@ -40,7 +40,7 @@ All env vars are read at process startup in `Config::load()`. They override the 
 </ResponseField>
 
 <ResponseField name="URCHIN_ACCOUNT" type="string">
-  Sets the `account` field in the `Identity` envelope attached to events. Not a config key — read directly by `Identity::resolve()`.
+  Sets the `account` field in the `Identity` envelope attached to events. Not a config key: read directly by `Identity::resolve()`.
 
   Default: `$USER` → hostname → `"unknown"`
 </ResponseField>
@@ -76,6 +76,6 @@ export URCHIN_LOG="urchin=info"
 
 ## Notes
 
-- `URCHIN_INTAKE_PORT` silently falls back to `18799` on parse error — it does not panic.
+- `URCHIN_INTAKE_PORT` silently falls back to `18799` on parse error: it does not panic.
 - `URCHIN_ACCOUNT` and `URCHIN_DEVICE` are not stored in `config.toml`. They are only readable via env.
 - There is no env var for `cache_path` or `remote_host` in v0.3.4.

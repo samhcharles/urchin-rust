@@ -65,6 +65,6 @@ For each repository:
 
 - Commits are ingested in chronological order (oldest-first after the checkpoint).
 - The collector uses the **commit author timestamp**, not the wall-clock time it runs.
-- Merge commits are included. Use `.gitignore`-style filtering if you want to exclude them — there is no built-in filter in v0.3.4.
+- Merge commits are included. Use `.gitignore`-style filtering if you want to exclude them: there is no built-in filter in v0.3.4.
 - Running `urchin collect all` passes repos from `URCHIN_REPO_ROOTS` only. Repos passed via `--repo` are not available to `all`.
 - The checkpoint file name is a hash of the normalised repo path, so two paths pointing to the same repo (e.g. symlinks) will generate separate checkpoints.

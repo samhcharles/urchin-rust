@@ -79,6 +79,7 @@ pub fn collect(journal: &Journal, identity: &Identity, opts: &AppleHealthOpts) -
                                 account: Some(identity.account.clone()),
                                 device: Some(identity.device.clone()),
                                 workspace: None,
+                                node_id: Some(identity.node_id.clone()),
                             });
                             journal.append(&event)?;
                             count += 1;
@@ -100,6 +101,7 @@ pub fn collect(journal: &Journal, identity: &Identity, opts: &AppleHealthOpts) -
                                 account: Some(identity.account.clone()),
                                 device: Some(identity.device.clone()),
                                 workspace: None,
+                                node_id: Some(identity.node_id.clone()),
                             });
                             journal.append(&event)?;
                             count += 1;
@@ -233,10 +235,7 @@ mod tests {
 
     fn setup(tmp: &TempDir) -> (Journal, Identity, AppleHealthOpts) {
         let journal = Journal::new(tmp.path().join("journal.jsonl"));
-        let identity = Identity {
-            account: "test".into(),
-            device: "test".into(),
-        };
+        let identity = Identity::for_test("test", "test");
         let opts = AppleHealthOpts {
             export_path: tmp.path().join("export.xml"),
             checkpoint_path: tmp.path().join("ckpt.txt"),

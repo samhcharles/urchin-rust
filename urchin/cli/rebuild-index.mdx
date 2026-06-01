@@ -1,0 +1,35 @@
+---
+title: "urchin rebuild-index"
+description: "Wipe and rebuild the SQLite projection index from the JSONL journal."
+---
+
+## Synopsis
+
+```bash
+urchin rebuild-index
+```
+
+## Behavior
+
+Drops and recreates the SQLite index at `{journal_dir}/index.db`, then replays every event from `events.jsonl` into it. The JSONL journal is the authoritative source of truth; the index is a derived read optimisation.
+
+Output:
+
+```bash
+rebuilt: 4821 events indexed
+```
+
+## When to use
+
+- After manual edits or migrations to `events.jsonl`
+- If `urchin recent` or `urchin query` produce unexpected results
+- After copying a journal file from another machine
+- If the index file is missing or corrupt
+
+`urchin serve` performs an automatic rebuild on startup if the index exists but is empty.
+
+## Notes
+
+- The index only accelerates queries. All data is preserved in `events.jsonl` regardless of index state.
+- Rebuild time scales linearly with journal size. For journals with tens of thousands of events, rebuilds complete in under a second on typical hardware.
+- The JSONL file is never modified by this command.
